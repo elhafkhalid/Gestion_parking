@@ -1,10 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Parking;
+
 
 class UserController extends Controller
 {
@@ -12,12 +12,11 @@ class UserController extends Controller
     {
         $user = Auth::user();
         $section = $request->section ?? 'home';
-
         $parkings = Parking::all();
-
         $selectedParking = null;
         $availablePlaces = 0;
 
+        
         if ($section === 'parkings' && $request->parking) {
 
             $selectedParking = Parking::with('places')
