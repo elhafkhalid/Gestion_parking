@@ -13,16 +13,12 @@ class VehicleSeeder extends Seeder
      */
     public function run(): void
     {
-        Vehicle::create([
-            'plate_number' => 'AA-123-BB',
-            'type' => 'Car',
-            'color' => 'Black'
-        ]);
-
-        Vehicle::create([
-            'plate_number' => 'CC-456-DD',
-            'type' => 'Motorcycle',
-            'color' => 'Red'
-        ]);
+        for ($i = 0; $i <= 20; $i++) {
+            Vehicle::create([
+                'plate_number' => 'AA-123-BB',
+                'type' => 'Car',
+                'color' => 'Black'
+            ]);
+        }
     }
 }

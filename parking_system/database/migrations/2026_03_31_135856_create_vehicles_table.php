@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
-            $table->string('plate_number')->unique();
+            $table->string('plate_number');
             $table->string('type');
             $table->string('color')->nullable();
             $table->timestamps();

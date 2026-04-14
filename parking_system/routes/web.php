@@ -5,12 +5,12 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VisiteurController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AgentRequestController;
+use App\Http\Controllers\AdminController;
 
 
 Route::get('/', [VisiteurController::class, 'index'])
     ->name('visiteur.dashboard');
-    
-    
+
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 
 Route::post('/register', [AuthController::class, 'register']);
@@ -21,11 +21,22 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return "Dashboard Admin";
-    })->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::delete(
+        '/admin/users/{user}',
+        [AdminController::class, 'destroyUser']
+    )
+        ->name('admin.users.destroy');
+
+    Route::post('/admin/parkings', [AdminController::class, 'storeParking'])
+        ->name('admin.parkings.store');
+
+    Route::put('/admin/parkings/{parking}', [AdminController::class, 'updateParking'])
+        ->name('admin.parkings.update');
+
+    Route::delete('/admin/parkings/{parking}', [AdminController::class, 'destroyParking'])
+        ->name('admin.parkings.destroy');
 });
 
 Route::middleware(['auth', 'role:agent'])->group(function () {
@@ -58,5 +69,3 @@ Route::middleware(['auth', 'role:user'])->group(function () {
     )
         ->name('user.agent.step');
 });
-
-
