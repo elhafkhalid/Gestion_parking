@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('agent_requests', function (Blueprint $table) {
 
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade')->unique();
             $table->string('phone');
             $table->integer('age');
             $table->string('experience');

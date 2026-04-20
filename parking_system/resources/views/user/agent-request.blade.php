@@ -1,14 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-    {{-- Conteneur principal --}}
     <div class="min-h-screen bg-slate-50 flex items-center justify-center p-4 md:p-8">
-
-        {{-- CADRE PRINCIPAL --}}
         <div
             class="w-full max-w-7xl bg-white rounded-3xl shadow-2xl overflow-hidden flex h-[750px] border border-slate-100 relative">
-
-            {{-- 1. COLONNE GAUCHE : PHOTO --}}
             <div class="relative w-1/2 h-full bg-slate-900 overflow-hidden hidden lg:block">
                 <img src="https://images.unsplash.com/photo-1556155092-490a1ba16284?q=80&w=2070"
                     class="absolute inset-0 w-full h-full object-cover opacity-40">
@@ -31,50 +26,38 @@
                     </div>
                 </div>
             </div>
-
-            {{-- 2. COLONNE DROITE : FORMULAIRE --}}
             <div class="flex-1 lg:w-1/2 p-8 md:p-16 flex flex-col relative bg-slate-50/50">
-
-                {{-- BOUTON QUITTER (En haut à droite) --}}
                 <div class="absolute top-8 right-8">
                     <a href="{{ route('user.dashboard') }}"
                         class="flex items-center gap-2 text-slate-400 hover:text-red-500 font-bold text-xs uppercase tracking-widest transition-colors group">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:rotate-90 transition-transform"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12" />
-                        </svg>
                         Quitter
                     </a>
                 </div>
 
                 <div class="mt-4">
                     <h2 class="text-3xl font-bold text-slate-800 mb-8 tracking-tight italic">Postuler</h2>
-
-                    {{-- INDICATEUR D'ÉTAPES --}}
                     <div
                         class="flex items-center justify-between mb-10 bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                        @php $steps_labels = [1 => 'Infos', 2 => 'Exp', 3 => 'Docs', 4 => 'Fin']; @endphp
+                        <?php $labels = [1 => 'Infos', 2 => 'Exp', 3 => 'Docs', 4 => 'Fin']; ?>
                         @foreach ([1, 2, 3, 4] as $i)
                             <div class="flex items-center gap-2">
-                                <span
-                                    class="h-8 w-8 rounded-lg flex items-center justify-center font-bold text-sm
-                                    {{ $step == $i ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : ($step > $i ? 'bg-green-500 text-white' : 'bg-slate-200 text-slate-500') }}">
+                                <span class="h-8 w-8 rounded-lg flex items-center justify-center font-bold text-sm">
                                     {{ $i }}
                                 </span>
                                 <span
-                                    class="text-xs font-bold uppercase {{ $step == $i ? 'text-blue-600' : 'text-slate-400' }} hidden md:block">
-                                    {{ $steps_labels[$i] }}
+                                    class="text-xs font-bold uppercase {{ $step == $i ? 'text-blue-600' : 'text-slate-400' }}">
+                                    {{ $labels[$i] }}
                                 </span>
                             </div>
-                            @if ($i < 4)
-                                <div class="flex-1 h-px bg-slate-200 mx-2"></div>
-                            @endif
                         @endforeach
                     </div>
 
-                    {{-- ÉTAPE 1 --}}
                     @if ($step == 1)
+                        @if (session('error'))
+                            <div class="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border-l-4 border-red-500">
+                                {{ session('error') }}
+                            </div>
+                        @endif
                         <form method="POST" action="{{ route('user.agent.step') }}" class="space-y-6">
                             @csrf
                             <input type="hidden" name="step" value="1">
@@ -93,13 +76,11 @@
                                     required>
                             </div>
                             <div class="pt-8 text-right">
-                                <button
+                                <button type="submit"
                                     class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-xl shadow-xl transition-all">Continuer
                                     →</button>
                             </div>
                         </form>
-
-                        {{-- ÉTAPE 2 --}}
                     @elseif($step == 2)
                         <form method="POST" action="{{ route('user.agent.step') }}" class="space-y-6">
                             @csrf
@@ -120,36 +101,45 @@
                             <div class="pt-6 flex justify-between items-center">
                                 <a href="{{ route('user.agent.create', ['step' => 1]) }}"
                                     class="text-slate-400 font-bold underline">← Retour</a>
-                                <button class="bg-blue-600 text-white font-bold py-4 px-12 rounded-xl shadow-xl">Continuer
+                                <button type="submit"
+                                    class="bg-blue-600 text-white font-bold py-4 px-12 rounded-xl shadow-xl">Continuer
                                     →</button>
                             </div>
                         </form>
-
-                        {{-- ÉTAPE 3 --}}
                     @elseif($step == 3)
+                        @if ($errors->any())
+                            <div class="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border-l-4 border-red-500">
+                                {{ $errors->first() }}
+                            </div>
+                        @endif
                         <form method="POST" action="{{ route('user.agent.step') }}" enctype="multipart/form-data"
                             class="space-y-6">
                             @csrf
                             <input type="hidden" name="step" value="3">
                             <div class="p-6 bg-white rounded-2xl border border-slate-200">
-                                <p class="font-bold text-slate-800 uppercase text-xs mb-2">Carte d'identité *</p>
-                                <input type="file" name="identity_document" class="w-full text-sm cursor-pointer"
-                                    required>
+                                <p class="font-bold text-slate-800 uppercase text-xs mb-2">Carte national *</p>
+                                <input type="file" name="carteN" class="w-full text-sm cursor-pointer" required>
                             </div>
                             <div class="p-6 bg-white rounded-2xl border border-slate-200">
-                                <p class="font-bold text-slate-800 uppercase text-xs mb-2">CV (Curriculum Vitae) *</p>
-                                <input type="file" name="cv_document" class="w-full text-sm cursor-pointer" required>
+                                <p class="font-bold text-slate-800 uppercase text-xs mb-2">CV *</p>
+                                <input type="file" name="cv" class="w-full text-sm cursor-pointer" required>
                             </div>
                             <div class="pt-8 flex justify-between items-center">
                                 <a href="{{ route('user.agent.create', ['step' => 2]) }}"
                                     class="text-slate-400 font-bold underline">← Retour</a>
-                                <button class="bg-blue-600 text-white font-bold py-4 px-12 rounded-xl shadow-xl">Continuer
+                                <button type="submit"
+                                    class="bg-blue-600 text-white font-bold py-4 px-12 rounded-xl shadow-xl">Continuer
                                     →</button>
                             </div>
                         </form>
 
                         {{-- ÉTAPE 4 --}}
                     @elseif($step == 4)
+                        @if (session('error'))
+                            <div class="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border-l-4 border-red-500">
+                                {{ session('error') }}
+                            </div>
+                        @endif
                         <div class="text-center space-y-10 py-10">
                             <div class="bg-green-100 p-6 rounded-2xl border-2 border-dashed border-green-200">
                                 <p class="text-green-700 font-black text-xl italic">DOSSIER PRÊT ✅</p>
@@ -157,7 +147,7 @@
                             <form method="POST" action="{{ route('user.agent.store') }}">
                                 @csrf
                                 <div class="flex flex-col items-center gap-6">
-                                    <button
+                                    <button type="submit"
                                         class="w-full bg-slate-900 hover:bg-black text-white font-black py-6 rounded-2xl shadow-2xl transition-all">
                                         ENVOYER MA CANDIDATURE
                                     </button>

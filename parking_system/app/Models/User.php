@@ -30,9 +30,9 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
 
-    public function agentRequests()
+    public function agentRequest()
     {
-        return $this->hasMany(AgentRequest::class);
+        return $this->hasOne(AgentRequest::class);
     }
 
     public function parkingRecords()

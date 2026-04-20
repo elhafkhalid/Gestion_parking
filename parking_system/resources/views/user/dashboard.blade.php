@@ -2,7 +2,7 @@
 
 @section('content')
 
-  
+
     <div class="min-h-screen bg-gray-100 flex">
         <div class="w-64 min-h-screen bg-white border-r border-gray-200 flex flex-col">
             <div class="p-6 border-b border-gray-200">
@@ -15,7 +15,6 @@
                 <div class="flex items-center gap-3">
                     <div
                         class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-lg">
-                        👤
                     </div>
                     <div>
                         <p class="font-bold text-gray-800 text-sm">{{ $user->name }}</p>
@@ -30,25 +29,25 @@
                 <a href="{{ route('user.dashboard', ['section' => 'home']) }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-lg font-bold text-sm
                       {{ $section === 'home' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    🏠 <span>Accueil</span>
+                    <span>Accueil</span>
                 </a>
 
                 <a href="{{ route('user.dashboard', ['section' => 'parkings']) }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-lg font-bold text-sm
                       {{ $section === 'parkings' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    📋 <span>Parkings</span>
+                    <span>Parkings</span>
                 </a>
 
                 <a href="{{ route('user.dashboard', ['section' => 'tarifs']) }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-lg font-bold text-sm
                       {{ $section === 'tarifs' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    💰 <span>Tarifs</span>
+                    <span>Tarifs</span>
                 </a>
 
                 <a href="{{ route('user.dashboard', ['section' => 'account']) }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-lg font-bold text-sm
                       {{ $section === 'account' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
-                    👤 <span>Mon Profil</span>
+                    <span>Mon Profil</span>
                 </a>
 
             </nav>
@@ -58,12 +57,14 @@
 
         <div class="flex-1 p-8 overflow-y-auto">
             @if ($section === 'home')
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">🏠 Accueil</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Accueil</h2>
 
                 <div class="bg-white rounded-xl p-16 text-center shadow">
-
-                    <div class="text-6xl mb-6">👋</div>
-
+                    @if (session('success'))
+                        <div class="bg-green-50 text-green-600 p-4 rounded-lg mb-6 border-l-4 border-green-500">
+                            {{ session('success') }}
+                        </div>
+                    @endif
                     <h3 class="text-3xl font-bold text-gray-800 mb-4">
                         Bienvenue, {{ $user->name }}
                     </h3>
@@ -75,11 +76,11 @@
                     <div class="flex justify-center gap-4">
                         <a href="{{ route('user.dashboard', ['section' => 'parkings']) }}"
                             class="bg-gray-900 text-white px-8 py-4 rounded-lg font-bold text-lg">
-                            📋 Explorer les Parkings →
+                            Explorer les Parkings →
                         </a>
                         <a href="{{ route('user.agent.create') }}"
                             class=" bg-green-500 text-white px-8 py-4 rounded-lg font-bold text-lg">
-                            📋 Devenir agent →
+                            Devenir agent →
                         </a>
                     </div>
 
@@ -93,7 +94,7 @@
                     </div>
                     <div class="bg-white rounded-xl p-6 shadow text-center">
                         <div class="text-3xl mb-2">✅</div>
-                        <p class="text-2xl font-black text-green-500">{{ $availablePlaces ?? '—' }}</p>
+                        <p class="text-2xl font-black text-green-500">{{ $availablePlaces }}</p>
                         <p class="text-sm text-gray-400 font-bold uppercase mt-1">Places libres</p>
                     </div>
                     <div class="bg-white rounded-xl p-6 shadow text-center">
@@ -102,9 +103,8 @@
                         <p class="text-sm text-gray-400 font-bold uppercase mt-1">Horaires d'accès</p>
                     </div>
                 </div>
-
             @elseif ($section === 'parkings')
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">📋 Parkings</h2>
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Parkings</h2>
                 <div class="grid grid-cols-4 gap-4 mb-6">
                     @foreach ($parkings as $p)
                         <a href="{{ route('user.dashboard', ['section' => 'parkings', 'parking' => $p->id]) }}"
@@ -118,12 +118,12 @@
                 </div>
 
                 @if ($selectedParking)
-                    <div class="bg-white rounded-xl shadow overflow-hidden">
+                    <div class="bg-white rounded-xl shadow ">
 
                         <div class="bg-blue-600 p-8 text-white flex justify-between items-center">
                             <div>
                                 <h3 class="text-3xl font-bold">{{ $selectedParking->name }}</h3>
-                                <p class="opacity-80 text-lg mt-1">📍 {{ $selectedParking->address }}</p>
+                                <p class="opacity-80 text-lg mt-1">{{ $selectedParking->address }}</p>
                             </div>
                             <div class="bg-white text-blue-600 px-8 py-5 rounded-xl text-center">
                                 <span class="block text-5xl font-black">{{ $availablePlaces }}</span>
@@ -136,7 +136,7 @@
                             <div class="space-y-6">
                                 <div>
                                     <p class="text-xs text-gray-400 uppercase font-bold mb-2">Téléphone</p>
-                                    <p class="text-xl font-bold text-gray-800">📞 {{ $selectedParking->phone }}</p>
+                                    <p class="text-xl font-bold text-gray-800">{{ $selectedParking->phone }}</p>
                                     <p class="text-gray-500 mt-1">{{ $selectedParking->email }}</p>
                                 </div>
                                 <div>
@@ -150,13 +150,13 @@
                                 <div class="space-y-4">
                                     <div
                                         class="flex justify-between items-center bg-white p-4 rounded-lg border border-gray-100">
-                                        <span class="font-bold text-gray-600 text-lg">🚗 Voiture</span>
+                                        <span class="font-bold text-gray-600 text-lg">Voiture</span>
                                         <span
                                             class="text-2xl font-black text-blue-600">{{ $selectedParking->price_car }}€</span>
                                     </div>
                                     <div
                                         class="flex justify-between items-center bg-white p-4 rounded-lg border border-gray-100">
-                                        <span class="font-bold text-gray-600 text-lg">🏍️ Moto</span>
+                                        <span class="font-bold text-gray-600 text-lg">Moto</span>
                                         <span
                                             class="text-2xl font-black text-blue-600">{{ $selectedParking->price_motorcycle }}€</span>
                                     </div>
@@ -172,7 +172,6 @@
                         </p>
                     </div>
                 @endif
-
             @elseif ($section === 'tarifs')
                 <h2 class="text-2xl font-bold text-gray-800 mb-6">💰 Tarifs</h2>
 
@@ -196,7 +195,6 @@
                         </div>
                     @endforeach
                 </div>
-
             @elseif ($section === 'account')
                 <h2 class="text-2xl font-bold text-gray-800 mb-6">👤 Mon Profil</h2>
 

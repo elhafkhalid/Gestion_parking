@@ -36,18 +36,10 @@
                             </p>
                         </div>
                     </div>
-
-                    @guest
-                        <a href="{{ route('login') }}"
-                            class="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 transition-colors shadow-xl shadow-slate-200">
-                            Se connecter
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                        </a>
-                    @endguest
+                    <a href="{{ route('login') }}"
+                        class="inline-flex items-center gap-2 bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 transition-colors shadow-xl shadow-slate-200">
+                        Se connecter
+                    </a>
                 </div>
 
                 <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
@@ -55,7 +47,7 @@
                     <aside class="xl:col-span-4">
                         <div class="bg-white rounded-[2rem] border border-slate-200 p-6 shadow-sm">
                             <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 px-2">
-                                Sélectionner un site</h3>
+                                Sélectionner un parking</h3>
                             <div class="space-y-2 max-h-[400px] overflow-y-auto">
                                 @foreach ($parkings as $parking)
                                     @php
@@ -70,7 +62,7 @@
                                             {{ $parking->name }}
                                         </p>
 
-                                        <p class="text-[9px] text-slate-400 mt-1 font-bold uppercase tracking-tighter">
+                                        <p class="text-[9px] text-slate-400 mt-1 font-bold uppercase ">
                                             {{ $parking->address }}
                                         </p>
                                     </a>
@@ -91,8 +83,13 @@
                                                 {{ $selectedParking->name }}</h2>
                                             <p
                                                 class="text-slate-400 mt-4 font-medium flex items-center justify-center md:justify-start gap-2">
-                                                <span class="text-indigo-500 italic">📍</span>
                                                 {{ $selectedParking->address }}
+                                            </p>
+
+                                            <p
+                                                class="text-slate-400 mt-4 font-medium flex items-center justify-center md:justify-start gap-2">
+
+                                                {{ $selectedParking->email }}
                                             </p>
                                         </div>
 
@@ -112,7 +109,7 @@
                                             {{ $selectedParking->opening_hours }}</p>
                                     </div>
                                     <div class="bg-white p-6 rounded-3xl border border-slate-200">
-                                        <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Assistance</p>
+                                        <p class="text-[10px] font-black text-slate-400 uppercase mb-2">Phone</p>
                                         <p class="font-extrabold text-slate-800 tracking-tight">
                                             {{ $selectedParking->phone }}</p>
                                     </div>
@@ -121,14 +118,14 @@
                                 <div class="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white">
                                     <div class="grid grid-cols-2 gap-8 divide-x divide-slate-800">
                                         <div class="text-center">
-                                            <div class="text-3xl mb-2">🚗</div>
+                                            <div class="text-3xl mb-2">Car</div>
                                             <p class="text-3xl font-black">{{ $selectedParking->price_car }}€<span
                                                     class="text-sm font-normal text-slate-500">/h</span></p>
                                             <p class="text-[10px] font-bold uppercase text-slate-500 mt-2 tracking-widest">
                                                 Véhicule</p>
                                         </div>
                                         <div class="text-center">
-                                            <div class="text-3xl mb-2">🏍️</div>
+                                            <div class="text-3xl mb-2">Moto</div>
                                             <p class="text-3xl font-black">{{ $selectedParking->price_motorcycle }}€<span
                                                     class="text-sm font-normal text-slate-500">/h</span></p>
                                             <p class="text-[10px] font-bold uppercase text-slate-500 mt-2 tracking-widest">

@@ -16,7 +16,9 @@ class AuthController extends Controller
         return view('auth.register');
     }
 
-    public function register(Request $request){
+    public function register(Request $request)
+    {
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -24,7 +26,7 @@ class AuthController extends Controller
         ]);
 
         $role = Role::where('name', 'user')->firstOrFail();
-        
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -49,18 +51,16 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (!Auth::attempt($data)) {
-            return back()->withErrors([
-                'email' => 'email ou mot de passe incorrect',
-            ]);
+        if (!auth::attempt($data)) {
+            return back()->withErrors('email ou password incorrect');
         }
 
         $role = Auth::user()->role->name;
-        
+
         $routes = [
             'admin' => 'admin.dashboard',
             'agent' => 'agent.dashboard',
-            'user'  => 'user.dashboard',
+            'user' => 'user.dashboard',
         ];
 
         return redirect()->route($routes[$role] ?? 'login');

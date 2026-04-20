@@ -7,7 +7,10 @@ use App\Models\Parking;
 use App\Models\Place;
 use App\Models\ParkingRecord;
 use App\Models\AgentRequest;
+use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
 
 class AdminController extends Controller
 {
@@ -15,62 +18,49 @@ class AdminController extends Controller
     {
         $section = $request->section ?? 'statistics';
 
-        // ===== SUPERVISION =====
         $totalPlaces = Place::count();
         $vehiclesInside = ParkingRecord::whereNull('exit_time')->count();
         $freePlaces = $totalPlaces - $vehiclesInside;
 
-        $occupationRate = $totalPlaces > 0
-            ? round(($vehiclesInside / $totalPlaces) * 100)
+        $occupation = $totalPlaces > 0
+            ? (($vehiclesInside / $totalPlaces) * 100)
             : 0;
 
-        // ===== ACTIVITÉ =====
         $entriesToday = ParkingRecord::whereDate('entry_time', today())->count();
         $exitsToday = ParkingRecord::whereDate('exit_time', today())->count();
 
-        // ===== UTILISATEURS =====
-        $users = User::with('role')->latest()->get();
+        $users = User::with('role')->get();
         $totalUsers = User::count();
-        $totalAgents = User::whereHas('role', fn($q) => $q->where('name', 'agent'))->count();
+        $totalAgents = User::where('name', 'agent')->count();
         $pendingRequests = AgentRequest::where('status', 'pending')->count();
-
-        // ===== PARKINGS =====
-        $parkings = Parking::latest()->get();
+        $agentRequests = AgentRequest::with('user')->where('status', 'pending')->latest()->get();
+        $parkings = Parking::get();
 
         return view('admin.dashboard', compact(
             'section',
             'totalPlaces',
             'vehiclesInside',
             'freePlaces',
-            'occupationRate',
+            'occupation',
             'entriesToday',
             'exitsToday',
             'users',
             'totalUsers',
             'totalAgents',
             'pendingRequests',
-            'parkings'
+            'agentRequests',
+            'parkings',
+
         ));
     }
 
-    public function destroyUser(User $user)
+    public function deleteUser(User $user)
     {
-        // Empêcher suppression de soi-même
-        if ($user->id === auth()->id()) {
-            return back()->with('error', 'Impossible de supprimer votre propre compte.');
-        }
-
-        // Vérifier que c'est bien un agent
-        if ($user->role->name !== 'agent') {
-            return back()->with('error', 'Vous pouvez supprimer uniquement les agents.');
-        }
-
         $user->delete();
-
-        return back()->with('success', 'Agent supprimé avec succès.');
+        return back()->with('success', 'agent supprime avec succes');
     }
 
-    // AJOUT
+
     public function storeParking(Request $request)
     {
         $data = $request->validate([
@@ -78,46 +68,72 @@ class AdminController extends Controller
             'address' => 'required',
             'total_places' => 'required|integer|min:1',
             'opening_hours' => 'required',
-            'price_car' => 'required|numeric|min:0',
-            'price_motorcycle' => 'required|numeric|min:0',
+            'email' => 'required',
+            'phone' => 'required',
+            'price_car' => 'required|min:0',
+            'price_motorcycle' => 'required|min:0',
         ]);
 
-        Parking::create($data);
+        $parking = Parking::create($data);
 
-        return back()->with('success', 'Parking ajouté avec succès.');
+        for ($i = 1; $i <= $data['total_places']; $i++) {
+            $parking->places()->create([
+                'number' => 'P-' . $i,
+            ]);
+        }
+
+        return back()->with('success', 'parking ajoute avec succes');
     }
 
-
-    // MODIFICATION
     public function updateParking(Request $request, Parking $parking)
     {
         $data = $request->validate([
             'name' => 'required',
             'address' => 'required',
-            'total_places' => 'required|integer|min:1',
             'opening_hours' => 'required',
+            'email' => 'required',
+            'phone' => 'required',
             'price_car' => 'required|numeric|min:0',
             'price_motorcycle' => 'required|numeric|min:0',
         ]);
 
         $parking->update($data);
 
-        return back()->with('success', 'Parking modifié.');
+        return back()->with('success', 'parking modifie');
     }
 
-
-    // SUPPRESSION
-    public function destroyParking(Parking $parking)
+    public function deleteParking(Parking $parking)
     {
-        // Sécurité : empêcher suppression si véhicules actifs
         if ($parking->places()->whereHas('parkingRecords', function ($q) {
             $q->whereNull('exit_time');
         })->exists()) {
-            return back()->with('error', 'Impossible de supprimer : véhicules encore stationnés.');
+            return back()->with('error', 'impossible de supprimer : vehicules encore statione');
         }
 
         $parking->delete();
 
-        return back()->with('success', 'Parking supprimé.');
+        return back()->with('success', 'parking supprime');
+    }
+
+    public function acceptAgent($id)
+    {
+        $request = AgentRequest::with('user')->findOrFail($id);
+        if ($request->status !== 'pending') return back()->with('error', 'demande deja traite');
+        $agentRole = Role::where('name', 'agent')->first();
+        $user = $request->user;
+        $user->role_id = $agentRole->id;
+        $user->save();
+        $request->status = 'accepeted';
+        $request->save();
+        return redirect()->route('admin.dashboard');
+    }
+
+    public function rejectAgent($id)
+    {
+        $request = AgentRequest::with('user')->findOrFail($id);
+        if ($request->status !== 'pending') return back()->with('error', 'demande deja traite');
+        $request->status = 'rejected';
+        $request->save();
+        return redirect()->route('admin.dashboard');
     }
 }

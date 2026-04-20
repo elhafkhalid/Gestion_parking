@@ -19,8 +19,7 @@ class UserController extends Controller
 
         if ($section === 'parkings' && $request->parking) {
 
-            $selectedParking = Parking::with('places')
-                ->find($request->parking);
+            $selectedParking = Parking::find($request->parking);
 
             if ($selectedParking) {
                 $availablePlaces = $selectedParking

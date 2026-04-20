@@ -12,10 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('parkings', function (Blueprint $table) {
-
             $table->dropColumn('price_for_hour');
-            $table->string('email')->nullable();
-            $table->string('phone')->nullable();
+            $table->string('email');
+            $table->string('phone');
             $table->decimal('price_car', 8, 2);
             $table->decimal('price_motorcycle', 8, 2);
         });

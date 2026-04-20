@@ -31,7 +31,6 @@
             
             <div class="w-full max-w-md">
                 <h2 class="text-3xl font-bold text-gray-900 mb-8">Connexion</h2>
-
                 
                 @if ($errors->any())
                     <div class="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border-l-4 border-red-500">
@@ -41,7 +40,6 @@
 
                 <form method="POST" action="{{ route('login') }}" class="space-y-6">
                     @csrf
-
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">Adresse Email</label>
                         <input type="email" name="email" placeholder="admin@parksys.com"

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use Illuminate\Http\Request;
 use App\Models\Parking;
 
@@ -12,21 +13,15 @@ class VisiteurController extends Controller
     {
 
         $parkings = Parking::all();
+
         $selectedParking = null;
-        $availablePlaces = 0;
         $selectedParkingId = $request->parking;
-        
+        $availablePlaces = 0;
 
         if ($selectedParkingId) {
-
-            $selectedParking = Parking::with('places')
-                ->find($selectedParkingId);
-
+            $selectedParking = Parking::find($selectedParkingId);
             if ($selectedParking) {
-                $availablePlaces = $selectedParking
-                    ->places
-                    ->where('is_occupied', false)
-                    ->count();
+                $availablePlaces = $selectedParking->places()->where('is_occupied', false)->count();
             }
         }
 

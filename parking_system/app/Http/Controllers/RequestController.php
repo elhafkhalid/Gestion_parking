@@ -6,22 +6,21 @@ use Illuminate\Http\Request;
 use App\Models\AgentRequest;
 use Illuminate\Support\Facades\Auth;
 
-class AgentRequestController extends Controller
-{
+class RequestController extends Controller {
     public function create(Request $request)
     {
         $step = $request->step ?? 1;
         return view('user.agent-request', compact('step'));
     }
 
-    public function processStep(Request $request)
+    public function procesStep(Request $request)
     {
         $step = $request->step;
 
         if ($step == 1) {
             $request->validate([
                 'phone' => 'required',
-                'age' => 'required|integer|min:18',
+                'age' => 'required|',
             ]);
         }
 
@@ -33,51 +32,45 @@ class AgentRequestController extends Controller
         }
 
         if ($step == 3) {
+
             $request->validate([
-                'identity_document' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
-                'cv_document' => 'required|file|mimes:pdf,doc,docx|max:5120',
+                'carteN' => 'required|file|mimes:pdf|max:5120',
+                'cv' => 'required|file|mimes:pdf|max:5120',
             ]);
 
-            // On stocke temporairement les fichiers
-            $identityPath = $request->file('identity_document')
-                ->store('temp_agent_documents', 'public');
+            $carteN = $request->file('carteN')->store('agent_carteN', 'public');
+            $cv = $request->file('cv')->store('agent_cv', 'public');
 
-            $cvPath = $request->file('cv_document')
-                ->store('temp_agent_documents', 'public');
-
-            session()->put('agent_step_3', [
-                'identity_document' => $identityPath,
-                'cv_document' => $cvPath,
+            session()->put("step_$step", [
+                'carteN' => $carteN,
+                'cv' => $cv,
             ]);
 
             return redirect()->route('user.agent.create', ['step' => 4]);
         }
 
-        session()->put("agent_step_$step", $request->except('_token'));
+        session()->put("step_$step", $request->all());
 
         return redirect()->route('user.agent.create', [
             'step' => $step + 1
         ]);
     }
 
-    public function store()
-    {
+    public function store() {
         $user = Auth::user();
 
         if ($user->agentRequest) {
-            return redirect()
-                ->route('user.dashboard')
-                ->with('error', 'Vous avez déjà envoyé une demande.');
+            return back()->with('error', 'deja envoye une demande');
         }
 
-        $step1 = session('agent_step_1');
-        $step2 = session('agent_step_2');
-        $step3 = session('agent_step_3');
+        $step1 = session('step_1');
+        $step2 = session('step_2');
+        $step3 = session('step_3');
 
         if (!$step1 || !$step2 || !$step3) {
             return redirect()
                 ->route('user.agent.create')
-                ->with('error', 'Processus incomplet.');
+                ->with('error', 'processus incomplet');
         }
 
         AgentRequest::create([
@@ -87,19 +80,19 @@ class AgentRequestController extends Controller
             'experience' => $step2['experience'],
             'availability' => $step2['availability'],
             'motivation' => $step2['motivation'] ?? null,
-            'identity_document' => $step3['identity_document'],
-            'cv_document' => $step3['cv_document'],
+            'identity_document' => $step3['carteN'],
+            'cv_document' => $step3['cv'],
             'status' => 'pending',
         ]);
 
         session()->forget([
-            'agent_step_1',
-            'agent_step_2',
-            'agent_step_3'
+            'step_1',
+            'step_2',
+            'step_3',
         ]);
 
         return redirect()
             ->route('user.dashboard')
-            ->with('success', 'Votre candidature a été envoyée avec succès.');
+            ->with('success', 'demande envoyer avec succes');
     }
 }
