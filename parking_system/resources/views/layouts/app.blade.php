@@ -73,7 +73,7 @@
             @yield('content')
         </div>
     </main>
-
+    
 </body>
 
 </html>

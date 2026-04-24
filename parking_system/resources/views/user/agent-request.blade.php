@@ -117,10 +117,6 @@
                             @csrf
                             <input type="hidden" name="step" value="3">
                             <div class="p-6 bg-white rounded-2xl border border-slate-200">
-                                <p class="font-bold text-slate-800 uppercase text-xs mb-2">Carte national *</p>
-                                <input type="file" name="carteN" class="w-full text-sm cursor-pointer" required>
-                            </div>
-                            <div class="p-6 bg-white rounded-2xl border border-slate-200">
                                 <p class="font-bold text-slate-800 uppercase text-xs mb-2">CV *</p>
                                 <input type="file" name="cv" class="w-full text-sm cursor-pointer" required>
                             </div>

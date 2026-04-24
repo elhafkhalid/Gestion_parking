@@ -9,8 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
+    public function up(): void {
         Schema::create('parking_records', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vehicle_id')
@@ -31,10 +30,7 @@ return new class extends Migration
             $table->timestamps();
         });
     }
-
-    /**
-     * Reverse the migrations.
-     */
+     
     public function down(): void
     {
         Schema::dropIfExists('parking_records');

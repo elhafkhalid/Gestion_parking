@@ -34,15 +34,12 @@ class RequestController extends Controller {
         if ($step == 3) {
 
             $request->validate([
-                'carteN' => 'required|file|mimes:pdf|max:5120',
                 'cv' => 'required|file|mimes:pdf|max:5120',
             ]);
 
-            $carteN = $request->file('carteN')->store('agent_carteN', 'public');
             $cv = $request->file('cv')->store('agent_cv', 'public');
 
             session()->put("step_$step", [
-                'carteN' => $carteN,
                 'cv' => $cv,
             ]);
 
@@ -80,7 +77,6 @@ class RequestController extends Controller {
             'experience' => $step2['experience'],
             'availability' => $step2['availability'],
             'motivation' => $step2['motivation'] ?? null,
-            'identity_document' => $step3['carteN'],
             'cv_document' => $step3['cv'],
             'status' => 'pending',
         ]);

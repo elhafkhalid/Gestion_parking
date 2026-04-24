@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('vehicles', function (Blueprint $table) {
-            $table->id();
-            $table->string('plate_number')->unique();
-            $table->string('type');
-            $table->string('color')->nullable();
-            $table->timestamps();
+        Schema::table('reservations', function (Blueprint $table) {
+            $table->foreignId('vehicle_id')
+                ->after('place_id')
+                ->constrained()
+                ->cascadeOnDelete();
         });
     }
 
@@ -25,6 +24,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('vehicles');
+        Schema::table('reservations', function (Blueprint $table) {
+            //
+        });
     }
 };

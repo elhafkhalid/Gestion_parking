@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class ParkingRecord extends Model
 {
+    protected $casts = [
+        'entry_time' => 'datetime',
+        'exit_time' => 'datetime',
+    ];
+    
     protected $fillable = [
         'vehicle_id',
         'place_id',

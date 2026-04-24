@@ -18,39 +18,67 @@ class AdminController extends Controller
     {
         $section = $request->section ?? 'statistics';
 
+
         $totalPlaces = Place::count();
-        $vehiclesInside = ParkingRecord::whereNull('exit_time')->count();
-        $freePlaces = $totalPlaces - $vehiclesInside;
+        $occupiedPlaces = ParkingRecord::whereNull('exit_time')->count();
+        $freePlaces = $totalPlaces - $occupiedPlaces;
+
 
         $occupation = $totalPlaces > 0
-            ? (($vehiclesInside / $totalPlaces) * 100)
+            ? round(($occupiedPlaces / $totalPlaces) * 100)
             : 0;
 
-        $entriesToday = ParkingRecord::whereDate('entry_time', today())->count();
-        $exitsToday = ParkingRecord::whereDate('exit_time', today())->count();
+
+        $currentVehicles = $occupiedPlaces;
+
+
+        $lastEntry = ParkingRecord::latest('entry_time')->first();
+
+
+        $lastExit = ParkingRecord::whereNotNull('exit_time')
+            ->latest('exit_time')
+            ->first();
+
+
+        $todayRevenue = ParkingRecord::whereDate('exit_time', today())
+            ->sum('total_price');
+
+
+        $latestVehicles = ParkingRecord::with(['vehicle', 'place.parking'])
+            ->latest('entry_time')
+            ->take(5)
+            ->get();
+
+        $agentRequests = AgentRequest::with('user')
+            ->where('status', 'pending')
+            ->latest()
+            ->get();
 
         $users = User::with('role')->get();
-        $totalUsers = User::count();
-        $totalAgents = User::where('name', 'agent')->count();
+        $parkings = Parking::all();
         $pendingRequests = AgentRequest::where('status', 'pending')->count();
-        $agentRequests = AgentRequest::with('user')->where('status', 'pending')->latest()->get();
-        $parkings = Parking::get();
+
+        $recordsNotActif = ParkingRecord::with(['vehicle', 'place'])
+            ->whereNotNull('exit_time')
+            ->get();
+        
 
         return view('admin.dashboard', compact(
             'section',
             'totalPlaces',
-            'vehiclesInside',
+            'occupiedPlaces',
             'freePlaces',
             'occupation',
-            'entriesToday',
-            'exitsToday',
-            'users',
-            'totalUsers',
-            'totalAgents',
+            'currentVehicles',
+            'lastEntry',
+            'lastExit',
+            'todayRevenue',
+            'latestVehicles',
             'pendingRequests',
             'agentRequests',
+            'users',
             'parkings',
-
+            'recordsNotActif',
         ));
     }
 
@@ -90,6 +118,7 @@ class AdminController extends Controller
         $data = $request->validate([
             'name' => 'required',
             'address' => 'required',
+            'total_places' => 'required',
             'opening_hours' => 'required',
             'email' => 'required',
             'phone' => 'required',
@@ -97,8 +126,18 @@ class AdminController extends Controller
             'price_motorcycle' => 'required|numeric|min:0',
         ]);
 
-        $parking->update($data);
+        $oldTotal = $parking->total_places;
+        $newTotal = $data['total_places'];
 
+        if ($newTotal > $oldTotal) {
+            for ($i = $oldTotal + 1; $i <= $newTotal; $i++) {
+                $parking->places()->create([
+                    'number' => 'P-' . $i,
+                ]);
+            }
+        }
+
+        $parking->update($data);
         return back()->with('success', 'parking modifie');
     }
 
