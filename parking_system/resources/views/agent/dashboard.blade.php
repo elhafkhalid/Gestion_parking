@@ -132,7 +132,7 @@
                                     <td>{{ $v->entry_time }}</td>
                                 </tr>
                             @endforeach
-                        </table>b
+                        </table>
                     </div>
 
                 </div>
@@ -179,20 +179,17 @@
                             </select>
                         </div>
 
-                        {{-- PLAQUE --}}
+                        
                         <div>
                             <label class="text-xs font-bold text-slate-400">Plaque</label>
                             <input name="plate_number" placeholder="Ex: 123-ABC" class="w-full p-4 rounded-xl bg-slate-100"
                                 required>
                         </div>
 
-                        {{-- TYPE --}}
+                        
                         <div>
-                            <label class="text-xs font-bold text-slate-400">Type</label>
-                            <select name="type" class="w-full p-4 rounded-xl bg-slate-100" required>
-                                <option value="car">Voiture</option>
-                                <option value="motorcycle">Moto</option>
-                            </select>
+                            <label class="text-xs font-bold text-slate-400">Marque</label>
+                            <input class="w-full p-4 rounded-xl bg-slate-100" type="text" name="marque" placeholder="Marque" required >
                         </div>
 
                         <button class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold">
@@ -275,8 +272,7 @@
 
         {{-- IMAGE DROITE --}}
         <div class="hidden lg:block w-[40%] bg-slate-900 relative">
-            <img src="{{ asset('images/agent.png') }}"
-                class="absolute w-full h-full object-cover opacity-40">
+            <img src="{{ asset('images/agent.png') }}" class="absolute w-full h-full object-cover opacity-40">
 
             <div class="absolute bottom-10 left-10 text-white">
                 <h2 class="text-4xl font-black">Agent Parking</h2>
@@ -285,7 +281,7 @@
         </div>
 
     </div>
-'demandes' => asset('images/agent.png'),
+    'demandes' => asset('images/agent.png'),
     <script>
         document.getElementById('parkingSelect').addEventListener('change', function() {
 

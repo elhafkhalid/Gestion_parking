@@ -13,8 +13,7 @@ class Parking extends Model
         'opening_hours',
         'email',
         'phone',
-        'price_car',
-        'price_motorcycle',
+        'price',
     ];
 
     public function places()

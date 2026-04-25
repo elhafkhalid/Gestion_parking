@@ -98,8 +98,7 @@ class AdminController extends Controller
             'opening_hours' => 'required',
             'email' => 'required',
             'phone' => 'required',
-            'price_car' => 'required|min:0',
-            'price_motorcycle' => 'required|min:0',
+            'price' => 'required|min:0',
         ]);
 
         $parking = Parking::create($data);
@@ -122,8 +121,7 @@ class AdminController extends Controller
             'opening_hours' => 'required',
             'email' => 'required',
             'phone' => 'required',
-            'price_car' => 'required|numeric|min:0',
-            'price_motorcycle' => 'required|numeric|min:0',
+            'price' => 'required|numeric|min:0',
         ]);
 
         $oldTotal = $parking->total_places;

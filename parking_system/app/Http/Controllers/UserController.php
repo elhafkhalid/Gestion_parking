@@ -9,85 +9,102 @@ use App\Models\Place;
 use App\Models\Reservation;
 use App\Models\Vehicle;
 
+
 class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $user = Auth::user();
         $section = $request->section ?? 'home';
+
         $parkings = Parking::all();
         $selectedParking = null;
-        $availablePlaces = Place::where('is_occupied', false)->count();
-        $places = [];
+        $places = collect();
+        $availablePlaces = 0;
 
-        if ($section === 'parkings') {
-
-            if ($request->parking) {
-                $selectedParking = Parking::find($request->parking);
-            } else {
-
-                $selectedParking = $parkings->first();
-            }
+        if ($request->parking) {
+            $selectedParking = Parking::find($request->parking);
 
             if ($selectedParking) {
-                $availablePlaces = $selectedParking
-                    ->places()
-                    ->where('is_occupied', false)
-                    ->count();
+                $places = $selectedParking->places()->where('is_occupied', false)->get();
+                $availablePlaces = $places->count();
             }
         }
 
+        $reservations = Reservation::with(['place.parking', 'vehicle'])
+            ->where('user_id', auth()->id())
+            ->whereNull('canceled_at')
+            ->latest()
+            ->get();
+        
+        $history = Reservation::all();
 
-        if ($selectedParking) {
-            $places = $selectedParking->places()
-                ->where('is_occupied', false)
-                ->get();
-        }
-        return view('user.dashboard', compact(
-            'user',
+        return view('client.dashboard', compact(
             'section',
             'parkings',
             'selectedParking',
+            'places',
             'availablePlaces',
-            'places'
+            'reservations',
+            'history',
         ));
     }
 
     public function reserve(Request $request) {
-        $placeId = $request->place_id;
 
-        $place = Place::findOrFail($placeId);
-         
-        $vehicle = Vehicle::where('plate_number', $request->plate_number)->first();
+        $request->validate([
+            'place_id' => 'required|exists:places,id',
+            'plate_number' => 'required',
+            'marque' => 'required',
+            'reservation_date' => 'required|date',
+            'reservation_time' => 'required',
+        ]);
 
-        if (!$vehicle) {
-            $vehicle = Vehicle::create([
-                'plate_number' => $request->plate_number,
-                'type' => $request->type
-            ]);
-        }
+        $place = Place::findOrFail($request->place_id);
 
-        $alreadyReserved = Reservation::where('vehicle_id', $vehicle->id)
-            ->whereHas('place', function ($q) {
-                $q->where('is_occupied', true);
-            })
+        $alreadyReserved = Reservation::where('user_id', auth()->id())
+            ->whereNull('canceled_at')
             ->exists();
 
         if ($alreadyReserved) {
-            return back()->with('error', 'ce vehicule est deje reserve');
+            return back()->with('error', 'Vous avez deja une reservation ');
         }
 
-        Reservation::create([
+        $vehicle = Vehicle::firstOrCreate(
+            ['plate_number' => $request->plate_number],
+            ['marque' => $request->marque]
+        );
+
+        $reservation = Reservation::create([
             'user_id' => auth()->id(),
-            'place_id' => $placeId,
+            'place_id' => $place->id,
             'vehicle_id' => $vehicle->id,
+            'reservation_date' => $request->reservation_date,
+            'reservation_time' => $request->reservation_time,
             'reserved_at' => now(),
         ]);
 
-        $place->update([
-            'is_occupied' => true
+        return redirect()->route('client.dashboard')
+            ->with('success', 'reservation reussie');
+    }
+
+    public function cancel($id)
+    {
+        $reservation = Reservation::where('user_id', auth()->id())
+            ->findOrFail($id);
+
+        $reservation->update([
+            'canceled_at' => now()
         ]);
 
-        return back()->with('success', 'Place réservée avec succès');
+        return redirect()->route('client.dashboard')
+            ->with('success', 'reservation anulee');
+    }
+
+    public function showReservation($id)
+    {
+        $reservation = Reservation::with(['place.parking', 'vehicle'])
+            ->findOrFail($id);
+
+        return view('client.reservation', compact('reservation'));
     }
 }

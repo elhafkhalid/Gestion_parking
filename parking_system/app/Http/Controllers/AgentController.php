@@ -69,44 +69,43 @@ class AgentController extends Controller
             'recordsNotActif'
         ));
     }
-
+     
 
     public function storeEntry(Request $request)
     {
         $request->validate([
             'plate_number' => 'required',
-            'type' => 'required|in:car,motorcycle',
+            'marque' => 'required|string|max:255',
             'place_id' => 'required|exists:places,id',
         ]);
-
         
+
         $vehicle = Vehicle::where('plate_number', $request->plate_number)->first();
 
-        
+
         if (!$vehicle) {
             $vehicle = Vehicle::create([
                 'plate_number' => $request->plate_number,
-                'type' => $request->type
+                'marque' => $request->marque
             ]);
         }
 
-        
+
         $alreadyInside = ParkingRecord::where('vehicle_id', $vehicle->id)
             ->whereNull('exit_time')
             ->exists();
+
 
         if ($alreadyInside) {
             return back()->with('error', 'Vehicule deja dans le parking');
         }
 
-        
         $place = Place::findOrFail($request->place_id);
 
         if ($place->is_occupied) {
             return back()->with('error', 'place occupe');
         }
 
-       
         ParkingRecord::create([
             'vehicle_id' => $vehicle->id,
             'place_id' => $place->id,
@@ -124,51 +123,37 @@ class AgentController extends Controller
 
     public function storeExit($id)
     {
-        
-        $record = ParkingRecord::with(['vehicle', 'place.parking'])->findOrFail($id);
 
-        
+        $record = ParkingRecord::with(['vehicle', 'place'])->findOrFail($id);
+
         if ($record->exit_time) {
             return back()->with('error', 'Vehicule deja sorti');
         }
 
-        
         $entryTime = $record->entry_time;
         $exitTime = now();
 
         $minutes = $entryTime->diffInMinutes($exitTime);
         $hours = ceil($minutes / 60);
 
-        
-        $type = $record->vehicle->type;
-
-        
         $parking = $record->place->parking;
+        $pricePerHour = $parking->price;
 
-      
-        if ($type === 'car') {
-            $pricePerHour = $parking->price_car;
-        } else {
-            $pricePerHour = $parking->price_motorcycle;
-        }
-
-        
         $totalPrice = $hours * $pricePerHour;
 
-       
         $record->update([
             'exit_time' => $exitTime,
             'total_price' => $totalPrice
         ]);
 
-        
+
         $record->place->update([
             'is_occupied' => false
         ]);
 
         return back()->with(
             'success',
-            "Sortie effectue | Durée: {$hours}h | Total: {$totalPrice} DH"
+            "Sortie effectue"
         );
     }
 

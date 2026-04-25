@@ -1,161 +1,152 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="min-h-screen bg-slate-50 flex items-center justify-center p-4 md:p-8">
-        <div
-            class="w-full max-w-7xl bg-white rounded-3xl shadow-2xl overflow-hidden flex h-[750px] border border-slate-100 relative">
-            <div class="relative w-1/2 h-full bg-slate-900 overflow-hidden hidden lg:block">
-                <img src="https://images.unsplash.com/photo-1556155092-490a1ba16284?q=80&w=2070"
-                    class="absolute inset-0 w-full h-full object-cover opacity-40">
+    <div class="min-h-screen w-full flex flex-col lg:flex-row font-sans antialiased bg-slate-50">
 
-                <div class="relative z-10 h-full flex flex-col justify-between p-16 text-white">
-                    <div>
-                        <div class="mb-16">
-                            <h2 class="text-4xl font-black tracking-tighter italic">PARK<span class="text-blue-500">SYS</span>
-                            </h2>
-                            <p class="text-slate-400 text-sm font-bold uppercase tracking-widest mt-1">Recrutement</p>
+        {{-- CONTENU GAUCHE --}}
+        <div class="w-full lg:w-[60%] flex flex-col p-6 md:p-12 lg:p-20 overflow-y-auto">
+
+            <div class="max-w-3xl w-full mx-auto">
+
+                {{-- HEADER --}}
+                <div class="flex justify-between items-center mb-12">
+                    <h2 class="text-3xl font-black text-slate-900">Postuler Agent</h2>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button class="bg-slate-900 text-white px-5 py-2 rounded-xl font-bold">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+
+                {{-- STEPS --}}
+                <div class="flex justify-between mb-10">
+                    @foreach ([1, 2, 3, 4] as $i)
+                        <div class="text-center">
+                            <div
+                                class="w-10 h-10 rounded-xl flex items-center justify-center font-bold
+                            {{ $step == $i ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500' }}">
+                                {{ $i }}
+                            </div>
                         </div>
-                        <h3 class="text-5xl font-extrabold leading-tight tracking-tight mb-6">Devenez <span
-                                class="text-blue-400 italic">Agent</span>.</h3>
-                        <p class="text-slate-300 text-lg max-w-md leading-relaxed">Rejoignez-nous pour gérer nos parkings et
-                            moderniser le stationnement urbain.</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-6 border-t border-slate-700 pt-10 font-bold">
-                        <p>💼 Emploi Stable</p>
-                        <p>📈 Évolution</p>
-                    </div>
-                </div>
-            </div>
-            <div class="flex-1 lg:w-1/2 p-8 md:p-16 flex flex-col relative bg-slate-50/50">
-                <div class="absolute top-8 right-8">
-                    <a href="{{ route('user.dashboard') }}"
-                        class="flex items-center gap-2 text-slate-400 hover:text-red-500 font-bold text-xs uppercase tracking-widest transition-colors group">
-                        Quitter
-                    </a>
+                    @endforeach
                 </div>
 
-                <div class="mt-4">
-                    <h2 class="text-3xl font-bold text-slate-800 mb-8 tracking-tight italic">Postuler</h2>
-                    <div
-                        class="flex items-center justify-between mb-10 bg-white p-3 rounded-xl border border-slate-100 shadow-sm">
-                        <?php $labels = [1 => 'Infos', 2 => 'Exp', 3 => 'Docs', 4 => 'Fin']; ?>
-                        @foreach ([1, 2, 3, 4] as $i)
-                            <div class="flex items-center gap-2">
-                                <span class="h-8 w-8 rounded-lg flex items-center justify-center font-bold text-sm">
-                                    {{ $i }}
-                                </span>
-                                <span
-                                    class="text-xs font-bold uppercase {{ $step == $i ? 'text-blue-600' : 'text-slate-400' }}">
-                                    {{ $labels[$i] }}
-                                </span>
-                            </div>
-                        @endforeach
-                    </div>
+                {{-- STEP CONTENT --}}
+                <div class="bg-white p-8 rounded-3xl border">
 
+                    {{-- STEP 1 --}}
                     @if ($step == 1)
-                        @if (session('error'))
-                            <div class="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border-l-4 border-red-500">
-                                {{ session('error') }}
-                            </div>
-                        @endif
-                        <form method="POST" action="{{ route('user.agent.step') }}" class="space-y-6">
+                        <form method="POST" action="{{ route('user.agent.step') }}" class="space-y-5">
                             @csrf
                             <input type="hidden" name="step" value="1">
-                            <div class="space-y-4">
-                                <input type="text" value="{{ auth()->user()->name }}"
-                                    class="w-full bg-slate-100 border p-4 rounded-xl text-slate-500 cursor-not-allowed italic"
-                                    readonly>
-                                <input type="email" value="{{ auth()->user()->email }}"
-                                    class="w-full bg-slate-100 border p-4 rounded-xl text-slate-500 cursor-not-allowed italic"
-                                    readonly>
-                                <input type="text" name="phone" placeholder="Téléphone *"
-                                    class="w-full border p-4 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                                    required>
-                                <input type="number" name="age" placeholder="Âge *"
-                                    class="w-full border p-4 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
-                                    required>
-                            </div>
-                            <div class="pt-8 text-right">
-                                <button type="submit"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-xl shadow-xl transition-all">Continuer
-                                    →</button>
-                            </div>
+
+                            <input type="text" value="{{ auth()->user()->name }}" readonly
+                                class="w-full p-4 rounded-xl bg-slate-100">
+
+                            <input type="email" value="{{ auth()->user()->email }}" readonly
+                                class="w-full p-4 rounded-xl bg-slate-100">
+
+                            <input type="text" name="phone" placeholder="Téléphone"
+                                class="w-full p-4 rounded-xl bg-slate-100" required>
+
+                            <input type="number" name="age" placeholder="Age"
+                                class="w-full p-4 rounded-xl bg-slate-100" required>
+
+                            <button class="w-full bg-blue-600 text-white py-4 rounded-xl">
+                                Continuer →
+                            </button>
                         </form>
-                    @elseif($step == 2)
-                        <form method="POST" action="{{ route('user.agent.step') }}" class="space-y-6">
+                    @endif
+
+
+                    {{-- STEP 2 --}}
+                    @if ($step == 2)
+                        <form method="POST" action="{{ route('user.agent.step') }}" class="space-y-5">
                             @csrf
                             <input type="hidden" name="step" value="2">
-                            <select name="experience" class="w-full border p-4 rounded-xl bg-white outline-none" required>
-                                <option value="">Choisir expérience</option>
+
+                            <select name="experience" class="w-full p-4 rounded-xl bg-slate-100" required>
+                                <option value="">Expérience</option>
                                 <option>Débutant</option>
                                 <option>Intermédiaire</option>
                                 <option>Expert</option>
                             </select>
-                            <select name="availability" class="w-full border p-4 rounded-xl bg-white outline-none" required>
-                                <option value="">Choisir disponibilité</option>
+
+                            <select name="availability" class="w-full p-4 rounded-xl bg-slate-100" required>
+                                <option value="">Disponibilité</option>
                                 <option>Temps plein</option>
                                 <option>Matin</option>
                                 <option>Après-midi</option>
                             </select>
-                            <textarea name="motivation" placeholder="Motivation..." class="w-full border p-4 rounded-xl h-40 outline-none"></textarea>
-                            <div class="pt-6 flex justify-between items-center">
-                                <a href="{{ route('user.agent.create', ['step' => 1]) }}"
-                                    class="text-slate-400 font-bold underline">← Retour</a>
-                                <button type="submit"
-                                    class="bg-blue-600 text-white font-bold py-4 px-12 rounded-xl shadow-xl">Continuer
-                                    →</button>
+
+                            <textarea name="motivation" class="w-full p-4 rounded-xl bg-slate-100" placeholder="Motivation..."></textarea>
+
+                            <div class="flex justify-between">
+                                <a href="{{ route('user.agent.create', ['step' => 1]) }}">← Retour</a>
+                                <button class="bg-blue-600 text-white px-6 py-3 rounded-xl">
+                                    Continuer →
+                                </button>
                             </div>
                         </form>
-                    @elseif($step == 3)
-                        @if ($errors->any())
-                            <div class="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border-l-4 border-red-500">
-                                {{ $errors->first() }}
-                            </div>
-                        @endif
-                        <form method="POST" action="{{ route('user.agent.step') }}" enctype="multipart/form-data"
-                            class="space-y-6">
+                    @endif
+
+
+                    {{-- STEP 3 --}}
+                    @if ($step == 3)
+                        <form method="POST" action="{{ route('user.agent.step') }}" enctype="multipart/form-data">
                             @csrf
                             <input type="hidden" name="step" value="3">
-                            <div class="p-6 bg-white rounded-2xl border border-slate-200">
-                                <p class="font-bold text-slate-800 uppercase text-xs mb-2">CV *</p>
-                                <input type="file" name="cv" class="w-full text-sm cursor-pointer" required>
-                            </div>
-                            <div class="pt-8 flex justify-between items-center">
-                                <a href="{{ route('user.agent.create', ['step' => 2]) }}"
-                                    class="text-slate-400 font-bold underline">← Retour</a>
-                                <button type="submit"
-                                    class="bg-blue-600 text-white font-bold py-4 px-12 rounded-xl shadow-xl">Continuer
-                                    →</button>
+
+                            <input type="file" name="cv" class="mb-6">
+
+                            <div class="flex justify-between">
+                                <a href="{{ route('user.agent.create', ['step' => 2]) }}">← Retour</a>
+                                <button class="bg-blue-600 text-white px-6 py-3 rounded-xl">
+                                    Continuer →
+                                </button>
                             </div>
                         </form>
+                    @endif
 
-                        {{-- ÉTAPE 4 --}}
-                    @elseif($step == 4)
-                        @if (session('error'))
-                            <div class="bg-red-50 text-red-600 p-4 rounded-lg mb-6 border-l-4 border-red-500">
-                                {{ session('error') }}
-                            </div>
-                        @endif
-                        <div class="text-center space-y-10 py-10">
-                            <div class="bg-green-100 p-6 rounded-2xl border-2 border-dashed border-green-200">
-                                <p class="text-green-700 font-black text-xl italic">DOSSIER PRÊT ✅</p>
-                            </div>
+
+                    {{-- STEP 4 --}}
+                    @if ($step == 4)
+                        <div class="text-center space-y-6">
+                            <p class="text-green-600 font-bold text-xl">Dossier prêt ✅</p>
+
                             <form method="POST" action="{{ route('user.agent.store') }}">
                                 @csrf
-                                <div class="flex flex-col items-center gap-6">
-                                    <button type="submit"
-                                        class="w-full bg-slate-900 hover:bg-black text-white font-black py-6 rounded-2xl shadow-2xl transition-all">
-                                        ENVOYER MA CANDIDATURE
-                                    </button>
-                                    <a href="{{ route('user.agent.create', ['step' => 3]) }}"
-                                        class="text-slate-400 font-bold underline text-sm italic">← Modifier documents</a>
-                                </div>
+                                <button class="w-full bg-slate-900 text-white py-4 rounded-xl">
+                                    Envoyer
+                                </button>
                             </form>
                         </div>
                     @endif
+
                 </div>
 
             </div>
         </div>
+
+        {{-- IMAGE DROITE --}}
+        <div class="relative w-full lg:w-[40%] h-80 lg:h-screen lg:sticky lg:top-0 bg-slate-900 overflow-hidden">
+
+            <img src="{{ asset('images/agent.png') }}" class="absolute inset-0 w-full h-full object-cover opacity-40">
+
+            <div class="absolute inset-0 flex flex-col justify-end p-10 text-white">
+                <span class="w-12 h-1.5 bg-blue-500 mb-6 rounded-full"></span>
+
+                <h2 class="text-5xl font-black">
+                    Devenir <br>
+                    <span class="text-blue-400 italic">Agent</span>
+                </h2>
+
+                <p class="text-slate-300 mt-4">
+                    Rejoignez notre équipe et gérez les parkings intelligents.
+                </p>
+            </div>
+        </div>
+
     </div>
 @endsection

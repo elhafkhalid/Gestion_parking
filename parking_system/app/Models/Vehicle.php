@@ -8,8 +8,7 @@ class Vehicle extends Model
 {
     protected $fillable = [
         'plate_number',
-        'type',
-        'color',
+        'marque'
     ];
 
     public function parkingRecords()

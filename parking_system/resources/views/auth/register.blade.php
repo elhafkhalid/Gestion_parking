@@ -3,7 +3,7 @@
 @section('content')
     <div class="h-screen w-full flex flex-col lg:flex-row-reverse overflow-hidden">
 
-        {{-- IMAGE (DROITE) --}}
+      
         <div class="relative w-full lg:w-[40%] h-80 lg:h-screen lg:sticky lg:top-0 bg-indigo-900 overflow-hidden">
 
             <img src="https://images.unsplash.com/photo-1512428559087-560fa5ceab42?q=80&w=2070&auto=format&fit=crop"
@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        {{-- CONTENU (GAUCHE) --}}
+        
         <div class="w-full lg:w-[60%] bg-white flex items-center justify-center p-8">
 
             <div class="w-full max-w-md">
@@ -41,13 +41,13 @@
 
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Nom complet</label>
-                        <input type="text" name="name" placeholder="Jean Dupont"
+                        <input type="text" name="name" placeholder="khalid"
                             class="w-full border border-gray-300 p-3 rounded-xl" required>
                     </div>
 
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1">Adresse Email</label>
-                        <input type="email" name="email" placeholder="jean@exemple.com"
+                        <input type="email" name="email" placeholder="khalid@exemple.com"
                             class="w-full border border-gray-300 p-3 rounded-xl" required>
                     </div>
 

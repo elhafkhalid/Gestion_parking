@@ -11,21 +11,28 @@ use App\Models\Role;
 
 class AuthController extends Controller
 {
-    public function showRegister()
+    public function showRegister(Request $request)
     {
+        session(['register_type' => $request->type]);
         return view('auth.register');
     }
+    
 
     public function register(Request $request)
     {
-
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
         ]);
 
-        $role = Role::where('name', 'user')->firstOrFail();
+        $type = session('register_type');
+
+        if ($type === 'user') {
+            $role = Role::where('name', 'user')->firstOrFail();
+        } else {
+            $role = Role::where('name', 'client')->firstOrFail();
+        }
 
         $user = User::create([
             'name' => $request->name,
@@ -36,7 +43,11 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('user.dashboard');
+        if ($type === 'user') {
+            return redirect()->route('user.agent.create');
+        }
+
+        return redirect()->route('client.dashboard');
     }
 
     public function showLogin()
@@ -60,7 +71,8 @@ class AuthController extends Controller
         $routes = [
             'admin' => 'admin.dashboard',
             'agent' => 'agent.dashboard',
-            'user' => 'user.dashboard',
+            'client' => 'client.dashboard',
+            'user' => 'user.agent.create',
         ];
 
         return redirect()->route($routes[$role] ?? 'login');
@@ -70,6 +82,6 @@ class AuthController extends Controller
     {
         Auth::logout();
         $request->session()->invalidate();
-        return redirect()->route('login');
+        return redirect()->route('/');
     }
 }

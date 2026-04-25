@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\AgentRequest;
 use Illuminate\Support\Facades\Auth;
 
-class RequestController extends Controller {
+class RequestController extends Controller
+{
     public function create(Request $request)
     {
         $step = $request->step ?? 1;
@@ -53,11 +54,14 @@ class RequestController extends Controller {
         ]);
     }
 
-    public function store() {
+    public function store()
+    {
         $user = Auth::user();
 
         if ($user->agentRequest) {
-            return back()->with('error', 'deja envoye une demande');
+            return redirect()
+                ->route('/')
+                ->with('error', 'demande deja envoyer');
         }
 
         $step1 = session('step_1');
@@ -88,7 +92,7 @@ class RequestController extends Controller {
         ]);
 
         return redirect()
-            ->route('user.dashboard')
+            ->route('/')
             ->with('success', 'demande envoyer avec succes');
     }
 }

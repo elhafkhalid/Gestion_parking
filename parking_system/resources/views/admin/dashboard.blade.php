@@ -284,19 +284,12 @@
                                                 <div class="relative">
                                                     <input type="number" step="0.01" name="price_car"
                                                         class="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-blue-500"
-                                                        required value="{{ $parking->price_car }}"
+                                                        required value="{{ $parking->price }}"
                                                         placeholder="Tarif Voiture">
                                                     <span
                                                         class="absolute right-4 top-4 text-slate-400 text-[10px] font-bold">/H</span>
                                                 </div>
-                                                <div class="relative">
-                                                    <input type="number" step="0.01" name="price_motorcycle"
-                                                        class="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-blue-500"
-                                                        required value="{{ $parking->price_motorcycle }}"
-                                                        placeholder="Tarif Moto">
-                                                    <span
-                                                        class="absolute right-4 top-4 text-slate-400 text-[10px] font-bold">/H</span>
-                                                </div>
+
                                             </div>
 
                                             <div class="flex gap-3 mt-6">
@@ -382,85 +375,114 @@
                             <div id="modal-{{ $req->id }}"
                                 class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
 
-                                <div class="bg-white w-full max-w-2xl p-8 rounded-3xl shadow-2xl">
+                                <div class="bg-white w-full max-w-2xl rounded-[2rem] shadow-2xl overflow-hidden">
 
-                                    <h3 class="text-3xl font-black mb-6">Détails Agent</h3>
-
-                                    {{-- INFOS --}}
-                                    <div class="grid grid-cols-2 gap-6 text-sm">
-
+                                    {{-- HEADER --}}
+                                    <div class="flex justify-between items-center p-6 border-b">
                                         <div>
-                                            <p class="text-slate-400 text-xs">Nom</p>
-                                            <p class="font-bold">{{ $req->user->name }}</p>
+                                            <h3 class="text-2xl font-black text-slate-900">Détails Agent</h3>
+                                            <p class="text-xs text-slate-400">Demande reçue</p>
                                         </div>
 
-                                        <div>
-                                            <p class="text-slate-400 text-xs">Email</p>
-                                            <p class="font-bold">{{ $req->user->email }}</p>
-                                        </div>
-
-                                        <div>
-                                            <p class="text-slate-400 text-xs">Téléphone</p>
-                                            <p class="font-bold">{{ $req->phone ?? '---' }}</p>
-                                        </div>
-
-                                        <div>
-                                            <p class="text-slate-400 text-xs">Date</p>
-                                            <p class="font-bold">{{ $req->created_at }}</p>
-                                        </div>
-
+                                        <button onclick="closeModal({{ $req->id }})"
+                                            class="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100 hover:bg-red-100 text-slate-500 hover:text-red-500 transition">
+                                            ✕
+                                        </button>
                                     </div>
 
-                                    {{-- MESSAGE --}}
-                                    <div class="mt-6">
-                                        <p class="text-slate-400 text-xs mb-2">Message</p>
-                                        <div class="bg-slate-100 p-4 rounded-xl text-sm">
-                                            {{ $req->motivation ?? 'Aucun message' }}
+                                    {{-- CONTENT --}}
+                                    <div class="p-6 space-y-6">
+
+                                        {{-- INFOS --}}
+                                        <div class="grid grid-cols-2 gap-4 text-sm">
+
+                                            <div class="bg-slate-50 p-4 rounded-xl">
+                                                <p class="text-xs text-slate-400">👤 Nom</p>
+                                                <p class="font-bold">{{ $req->user->name }}</p>
+                                            </div>
+
+                                            <div class="bg-slate-50 p-4 rounded-xl">
+                                                <p class="text-xs text-slate-400">📧 Email</p>
+                                                <p class="font-bold">{{ $req->user->email }}</p>
+                                            </div>
+
+                                            <div class="bg-slate-50 p-4 rounded-xl">
+                                                <p class="text-xs text-slate-400">📱 Téléphone</p>
+                                                <p class="font-bold">{{ $req->phone ?? '---' }}</p>
+                                            </div>
+
+                                            <div class="bg-slate-50 p-4 rounded-xl">
+                                                <p class="text-xs text-slate-400">📅 Date</p>
+                                                <p class="font-bold">{{ $req->created_at->format('d/m/Y H:i') }}</p>
+                                            </div>
+
                                         </div>
-                                    </div>
 
-                                    {{-- DOCUMENTS --}}
-                                    <div class="grid grid-cols-2 gap-4 mt-6">
+                                        {{-- MESSAGE --}}
+                                        <div>
+                                            <p class="text-xs text-slate-400 mb-2">💬 Motivation</p>
+                                            <div class="bg-slate-100 p-4 rounded-xl text-sm leading-relaxed">
+                                                {{ $req->motivation ?? 'Aucun message' }}
+                                            </div>
+                                        </div>
 
-                                        {{-- CV --}}
-                                        <div class="bg-slate-200 p-4 rounded-xl text-center">
-                                            
+                                        {{-- DOCUMENT --}}
+                                        <div class="bg-slate-50 p-4 rounded-xl flex items-center justify-between">
+
+                                            <div class="flex items-center gap-3">
+                                                <div
+                                                    class="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center">
+                                                    📄
+                                                </div>
+                                                <div>
+                                                    <p class="font-bold text-sm">CV</p>
+                                                    <p class="text-xs text-slate-400">Document candidat</p>
+                                                </div>
+                                            </div>
 
                                             @if ($req->cv_document)
                                                 <a href="{{ asset('storage/' . $req->cv_document) }}" target="_blank"
-                                                    class="text-blue-600 font-bold underline">
-                                                    Voir CV
+                                                    class="text-blue-600 font-bold text-sm hover:underline">
+                                                    Voir →
                                                 </a>
                                             @else
-                                                <p class="text-slate-300">Non fourni</p>
+                                                <span class="text-slate-300 text-sm">Non fourni</span>
                                             @endif
+
                                         </div>
+
                                     </div>
 
                                     {{-- ACTIONS --}}
-                                    <div class="flex gap-3 mt-8">
+                                    <div class="border-t p-6 flex justify-between items-center">
 
-                                        <button
-                                            onclick="document.getElementById('modal-{{ $req->id }}').classList.add('hidden')"
-                                            class="flex-1 py-3 bg-slate-100 rounded-xl font-bold">
-                                            Fermer
+                                        {{-- CLOSE --}}
+                                        <button onclick="closeModal({{ $req->id }})"
+                                            class="flex items-center gap-2 text-slate-400 hover:text-red-500 font-bold text-sm transition">
+                                            ← Fermer
                                         </button>
 
-                                        <form method="POST" action="{{ route('admin.agent.accept', $req->id) }}"
-                                            class="flex-1">
-                                            @csrf
-                                            <button class="w-full bg-green-500 text-white py-3 rounded-xl font-bold">
-                                                Accepter
-                                            </button>
-                                        </form>
+                                        <div class="flex gap-3">
 
-                                        <form method="POST" action="{{ route('admin.agent.reject', $req->id) }}"
-                                            class="flex-1">
-                                            @csrf
-                                            <button class="w-full bg-red-500 text-white py-3 rounded-xl font-bold">
-                                                Refuser
-                                            </button>
-                                        </form>
+                                            {{-- REFUSER --}}
+                                            <form method="POST" action="{{ route('admin.agent.reject', $req->id) }}">
+                                                @csrf
+                                                <button
+                                                    class="flex items-center gap-2 px-5 py-2 rounded-xl bg-red-50 text-red-600 font-bold hover:bg-red-100 transition">
+                                                    ❌ Refuser
+                                                </button>
+                                            </form>
+
+                                            {{-- ACCEPTER --}}
+                                            <form method="POST" action="{{ route('admin.agent.accept', $req->id) }}">
+                                                @csrf
+                                                <button
+                                                    class="flex items-center gap-2 px-5 py-2 rounded-xl bg-green-50 text-green-600 font-bold hover:bg-green-100 transition">
+                                                    ✅ Accepter
+                                                </button>
+                                            </form>
+
+                                        </div>
 
                                     </div>
 
@@ -486,11 +508,11 @@
             class="relative w-full lg:w-[40%] h-80 lg:h-screen lg:sticky lg:top-0 bg-slate-900 overflow-hidden order-1 lg:order-2">
             @php
                 $bgImages = [
-                    'parkings' => 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?q=80&w=2070',   
+                    'parkings' => 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?q=80&w=2070',
                 ];
             @endphp
 
-            <img src="{{  $bgImages['parkings'] }}" alt="Admin Context"
+            <img src="{{ $bgImages['parkings'] }}" alt="Admin Context"
                 class="absolute inset-0 w-full h-full object-cover opacity-40">
             <div class="absolute inset-0 flex flex-col justify-end p-10 md:p-16 text-white">
                 <span class="w-12 h-1.5 bg-blue-500 mb-6 rounded-full"></span>
@@ -538,17 +560,12 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="relative">
-                        <input type="number" step="0.01" name="price_car" placeholder="Tarif Voiture"
+                        <input type="number" step="0.01" name="price" placeholder="Tarif Voiture"
                             class="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-blue-500"
                             required>
                         <span class="absolute right-4 top-4 text-slate-400 text-[10px] font-bold">/H</span>
                     </div>
-                    <div class="relative">
-                        <input type="number" step="0.01" name="price_motorcycle" placeholder="Tarif Moto"
-                            class="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-blue-500"
-                            required>
-                        <span class="absolute right-4 top-4 text-slate-400 text-[10px] font-bold">/H</span>
-                    </div>
+
                 </div>
 
                 <div class="flex gap-3 mt-6">
