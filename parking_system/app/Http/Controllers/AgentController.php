@@ -7,6 +7,7 @@ use App\Models\ParkingRecord;
 use App\Models\Place;
 use App\Models\Parking;
 use App\Models\Vehicle;
+use App\Models\Reservation;
 
 class AgentController extends Controller
 {
@@ -50,6 +51,12 @@ class AgentController extends Controller
             ->whereNotNull('exit_time')
             ->get();
 
+        $reservations = Reservation::with(['user', 'vehicle', 'place.parking'])
+            ->whereNull('canceled_at')
+            ->latest()
+            ->get();
+
+
         $places = place::all();
         return view('agent.dashboard', compact(
             'section',
@@ -66,10 +73,11 @@ class AgentController extends Controller
             'vehicles',
             'recordsActif',
             'places',
-            'recordsNotActif'
+            'recordsNotActif',
+            'reservations',
         ));
     }
-     
+
 
     public function storeEntry(Request $request)
     {
@@ -78,34 +86,38 @@ class AgentController extends Controller
             'marque' => 'required|string|max:255',
             'place_id' => 'required|exists:places,id',
         ]);
+
         
+        $vehicle = Vehicle::firstOrCreate(
+            ['plate_number' => $request->plate_number],
+            ['marque' => $request->marque]
+        );
 
-        $vehicle = Vehicle::where('plate_number', $request->plate_number)->first();
+        $place = Place::findOrFail($request->place_id);
 
-
-        if (!$vehicle) {
-            $vehicle = Vehicle::create([
-                'plate_number' => $request->plate_number,
-                'marque' => $request->marque
-            ]);
-        }
-
-
+       
         $alreadyInside = ParkingRecord::where('vehicle_id', $vehicle->id)
             ->whereNull('exit_time')
             ->exists();
 
-
         if ($alreadyInside) {
-            return back()->with('error', 'Vehicule deja dans le parking');
+            return back()->with('error', 'vehicule deja parke');
         }
 
-        $place = Place::findOrFail($request->place_id);
+       
+        $vehicleReservation = Reservation::where('vehicle_id', $vehicle->id)
+            ->whereNull('canceled_at')
+            ->first();
+
+        if ($vehicleReservation) {
+            return back()->with('error', 'ce vehicule a reserve');
+        }
 
         if ($place->is_occupied) {
             return back()->with('error', 'place occupe');
         }
 
+        
         ParkingRecord::create([
             'vehicle_id' => $vehicle->id,
             'place_id' => $place->id,
@@ -113,12 +125,11 @@ class AgentController extends Controller
             'entry_time' => now(),
         ]);
 
-        
         $place->update([
             'is_occupied' => true
         ]);
 
-        return back()->with('success', 'Entre enregistre');
+        return back()->with('success', 'entre enregiste');
     }
 
     public function storeExit($id)
@@ -134,12 +145,10 @@ class AgentController extends Controller
         $exitTime = now();
 
         $minutes = $entryTime->diffInMinutes($exitTime);
-        $hours = ceil($minutes / 60);
-
         $parking = $record->place->parking;
-        $pricePerHour = $parking->price;
+        $pricePerMin = $parking->price / 60;
 
-        $totalPrice = $hours * $pricePerHour;
+        $totalPrice = $minutes * $pricePerMin;
 
         $record->update([
             'exit_time' => $exitTime,
@@ -155,6 +164,43 @@ class AgentController extends Controller
             'success',
             "Sortie effectue"
         );
+    }
+
+    public function cancelReservation($id)
+    {
+        $reservation = Reservation::findOrFail($id);
+
+        $reservation->place->update([
+            'is_occupied' => false
+        ]);
+
+        $reservation->update([
+            'canceled_at' => now()
+        ]);
+
+        //$reservation->delete();
+
+        return back()->with('success', 'reservation annule');
+    }
+
+    public function confirmReservation($id)
+    {
+        $reservation = Reservation::findOrFail($id);
+
+        ParkingRecord::create([
+            'vehicle_id' => $reservation->vehicle_id,
+            'place_id' => $reservation->place_id,
+            'agent_id' => auth()->id(),
+            'entry_time' => now(),
+        ]);
+
+        $reservation->place->update([
+            'is_occupied' => true
+        ]);
+
+        //$reservation->delete();
+
+        return back()->with('success', 'entre confirme');
     }
 
     public function getPlaces($parkingId)

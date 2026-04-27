@@ -13,7 +13,7 @@ class AuthController extends Controller
 {
     public function showRegister(Request $request)
     {
-        session(['register_type' => $request->type]);
+        session(['type' => $request->type]);
         return view('auth.register');
     }
     
@@ -26,7 +26,7 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        $type = session('register_type');
+        $type = session('type');
 
         if ($type === 'user') {
             $role = Role::where('name', 'user')->firstOrFail();
@@ -43,7 +43,7 @@ class AuthController extends Controller
 
         Auth::login($user);
 
-        if ($type === 'user') {
+        if ($role->name === 'user') {
             return redirect()->route('user.agent.create');
         }
 

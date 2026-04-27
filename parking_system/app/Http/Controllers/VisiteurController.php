@@ -14,3 +14,4 @@ class VisiteurController extends Controller
         return view('visiteur.dashboard');
     }
 }
+

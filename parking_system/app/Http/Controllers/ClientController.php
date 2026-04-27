@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Parking;
 use App\Models\Place;
 use App\Models\Reservation;
 use App\Models\Vehicle;
+use DateTime;
 
 
-class UserController extends Controller
+class ClientController extends Controller
 {
     public function index(Request $request)
     {
@@ -35,7 +35,7 @@ class UserController extends Controller
             ->whereNull('canceled_at')
             ->latest()
             ->get();
-        
+
         $history = Reservation::all();
 
         return view('client.dashboard', compact(
@@ -49,8 +49,8 @@ class UserController extends Controller
         ));
     }
 
-    public function reserve(Request $request) {
-
+    public function reserve(Request $request)
+    {
         $request->validate([
             'place_id' => 'required|exists:places,id',
             'plate_number' => 'required',
@@ -59,34 +59,62 @@ class UserController extends Controller
             'reservation_time' => 'required',
         ]);
 
-        $place = Place::findOrFail($request->place_id);
-
+    
         $alreadyReserved = Reservation::where('user_id', auth()->id())
             ->whereNull('canceled_at')
             ->exists();
 
         if ($alreadyReserved) {
-            return back()->with('error', 'Vous avez deja une reservation ');
+            return back()->with('error', 'vous avez deja une reservation ');
         }
 
+       
         $vehicle = Vehicle::firstOrCreate(
             ['plate_number' => $request->plate_number],
             ['marque' => $request->marque]
         );
 
-        $reservation = Reservation::create([
+        
+        $vehicleAlreadyReserved = Reservation::where('vehicle_id', $vehicle->id)
+            ->whereNull('canceled_at')
+            ->exists();
+
+        if ($vehicleAlreadyReserved) {
+            return back()->with('error', 'ce vehicule a deja reserver');
+        }
+
+   
+        $reservationDateTime = new \DateTime(
+            $request->reservation_date . ' ' . $request->reservation_time
+        );
+
+        $now = new \DateTime();
+
+        if ($reservationDateTime <= $now) {
+            return back()->with('error', 'date et heure invalide');
+        }
+
+        
+        Reservation::create([
             'user_id' => auth()->id(),
-            'place_id' => $place->id,
+            'place_id' => $request->place_id,
             'vehicle_id' => $vehicle->id,
             'reservation_date' => $request->reservation_date,
             'reservation_time' => $request->reservation_time,
             'reserved_at' => now(),
         ]);
 
+   
+        $place = Place::find($request->place_id);
+        $place->update([
+            'is_occupied' => true,
+        ]);
+
         return redirect()->route('client.dashboard')
             ->with('success', 'reservation reussie');
     }
 
+    
     public function cancel($id)
     {
         $reservation = Reservation::where('user_id', auth()->id())

@@ -91,8 +91,10 @@ class RequestController extends Controller
             'step_3',
         ]);
 
+        Auth::logout();
+
         return redirect()
             ->route('/')
-            ->with('success', 'demande envoyer avec succes');
+            ->with('success', 'demande envoye veuillez attend validation');
     }
 }

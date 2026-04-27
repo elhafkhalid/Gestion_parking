@@ -16,13 +16,18 @@ class Reservation extends Model
         'canceled_at',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function vehicle()
     {
-        return $this->belongsTo(vehicle::class);
+        return $this->belongsTo(Vehicle::class);
     }
 
     public function place()
     {
-        return $this->belongsTo(place::class);
+        return $this->belongsTo(Place::class);
     }
 }

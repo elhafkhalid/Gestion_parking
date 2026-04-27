@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VisiteurController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\RequestController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AgentController;
@@ -18,9 +18,9 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
 Route::middleware(['auth', 'role:client'])->group(function () {
-    Route::get('/client/dashboard', [UserController::class, 'index'])->name('client.dashboard');
-    Route::post('/reserve', [UserController::class, 'reserve'])->name('client.reserve');
-    Route::post('/reservation/{id}/cancel', [UserController::class, 'cancel'])->name('client.reservation.cancel');
+    Route::get('/client/dashboard', [ClientController::class, 'index'])->name('client.dashboard');
+    Route::post('/reserve', [ClientController::class, 'reserve'])->name('client.reserve');
+    Route::post('/reservation/{id}/cancel', [ClientController::class, 'cancel'])->name('client.reservation.cancel');
 });
 
 
@@ -46,4 +46,6 @@ Route::middleware(['auth', 'role:agent'])->group(function () {
     Route::post('/agent/entry', [AgentController::class, 'storeEntry'])->name("agent.entry");
     Route::post('/agent/exit/{id}', [AgentController::class, 'storeExit'])->name('agent.exit');
     Route::get('/agent/places/{parking}', [AgentController::class, 'getPlaces'])->name('fetch.places');
+    Route::post('/agent/reservation/{id}/confirm', [AgentController::class, 'confirmReservation'])->name('agent.confirm.reservation');
+    Route::post('/agent/reservation/{id}/cancel', [AgentController::class, 'cancelReservation'])->name('agent.cancel.reservation');
 });

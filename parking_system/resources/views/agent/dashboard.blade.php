@@ -2,12 +2,14 @@
 
 @section('content')
 
-    <div class="min-h-screen w-full flex flex-col lg:flex-row bg-slate-50 font-sans">
+    <div class="h-screen w-full flex bg-slate-50 font-sans overflow-hidden">
 
+        {{-- CONTENU (SCROLL) --}}
+        <div
+            class="w-[60%] p-6 md:p-12 lg:p-20 overflow-y-auto 
+                [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
-        <div class="w-full lg:w-[60%] p-6 md:p-12 lg:p-20 overflow-y-auto">
-
-
+            {{-- HEADER --}}
             <div class="flex justify-between items-center mb-12">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black">
@@ -18,7 +20,6 @@
                         <p class="text-xs text-slate-400 uppercase">Gestion Parking</p>
                     </div>
                 </div>
-
 
                 <div class="flex gap-2">
                     <a href="{{ route('agent.dashboard', ['section' => 'dashboard']) }}"
@@ -33,25 +34,34 @@
                     <a href="{{ route('agent.dashboard', ['section' => 'places']) }}"
                         class="p-3 rounded-xl {{ $section == 'places' ? 'bg-blue-600 text-white' : 'bg-white border' }}">🅿️</a>
 
+                    <a href="{{ route('agent.dashboard', ['section' => 'reservations']) }}"
+                        class="p-3 rounded-xl {{ $section == 'reservations' ? 'bg-blue-600 text-white' : 'bg-white border' }}">
+                        📅
+                    </a>
+
                     <a href="{{ route('agent.dashboard', ['section' => 'history']) }}"
                         class="p-3 rounded-xl {{ $section == 'history' ? 'bg-blue-600 text-white' : 'bg-white border' }}">📜</a>
                 </div>
             </div>
 
-
+            {{-- ALERTS --}}
             @if (session('success'))
                 <div class="bg-green-100 text-green-700 p-4 rounded-xl mb-6">
                     {{ session('success') }}
                 </div>
             @endif
 
+              @if (session('error'))
+                <div class="bg-red-100 text-red-700 p-4 rounded-xl mb-6">
+                    {{ session('error') }}
+                </div>
+            @endif
 
+            {{-- DASHBOARD --}}
             @if ($section == 'dashboard')
                 <div class="space-y-8">
 
-
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-
                         <div class="bg-white p-6 rounded-2xl border">
                             <p class="text-xs text-slate-400">Places libres</p>
                             <h2 class="text-3xl font-black text-green-600">{{ $freePlaces }}</h2>
@@ -71,126 +81,59 @@
                             <p class="text-xs text-slate-400">Véhicules présents</p>
                             <h2 class="text-3xl font-black text-blue-600">{{ $currentVehicles }}</h2>
                         </div>
-
                     </div>
-
 
                     <div class="bg-white p-6 rounded-2xl border">
                         <h3 class="font-black mb-4">Activité</h3>
 
                         <div class="grid grid-cols-3 gap-4 text-center">
-
                             <div>
                                 <p class="text-xs text-slate-400">Dernière entrée</p>
-                                <p class="font-bold">
-                                    {{ $lastEntryTime ?? '---' }}
-                                </p>
+                                <p class="font-bold">{{ $lastEntryTime ?? '---' }}</p>
                             </div>
 
                             <div>
                                 <p class="text-xs text-slate-400">Dernière sortie</p>
-                                <p class="font-bold">
-                                    {{ $lastExitTime ?? '---' }}
-                                </p>
+                                <p class="font-bold">{{ $lastExitTime ?? '---' }}</p>
                             </div>
 
                             <div>
                                 <p class="text-xs text-slate-400">Aujourd’hui</p>
-                                <p class="font-bold">
-                                    {{ date('Y-m-d') }}
-                                </p>
+                                <p class="font-bold">{{ date('Y-m-d') }}</p>
                             </div>
-
                         </div>
                     </div>
 
-
                     <div class="bg-slate-900 text-white p-8 rounded-3xl">
                         <p class="text-xs uppercase opacity-60">Revenu aujourd’hui</p>
-                        <h2 class="text-5xl font-black mt-2">
-                            {{ $todayRevenue }} DH
-                        </h2>
-                    </div>
-
-
-                    <div class="bg-white rounded-2xl border overflow-hidden">
-                        <h3 class="p-6 font-black">Dernières entrées</h3>
-
-                        <table class="w-full">
-                            <tr class="bg-slate-100 text-sm">
-                                <th class="p-4">Plaque</th>
-                                <th>ParkName</th>
-                                <th>Place</th>
-                                <th>Heure</th>
-                            </tr>
-
-                            @foreach ($latestVehicles as $v)
-                                <tr class="text-center border-t">
-                                    <td class="p-4">{{ $v->vehicle->plate_number }}</td>
-                                    <td>{{ $v->place->parking->name }}</td>
-                                    <td>{{ $v->place->number }}</td>
-                                    <td>{{ $v->entry_time }}</td>
-                                </tr>
-                            @endforeach
-                        </table>
+                        <h2 class="text-5xl font-black mt-2">{{ $todayRevenue }} DH</h2>
                     </div>
 
                 </div>
             @endif
 
-
+            {{-- ENTRY --}}
             @if ($section == 'entry')
                 <div class="bg-white p-8 rounded-3xl border max-w-xl">
 
                     <h2 class="text-2xl font-black mb-6">Entrée Véhicule</h2>
 
-                    @if (session('error'))
-                        <div class="bg-red-100 text-red-600 p-3 rounded-xl mb-4">
-                            {{ session('error') }}
-                        </div>
-                    @endif
-
-                    @if (session('success'))
-                        <div class="bg-green-100 text-green-600 p-3 rounded-xl mb-4">
-                            {{ session('success') }}
-                        </div>
-                    @endif
-
                     <form method="POST" action="{{ route('agent.entry') }}" class="space-y-5">
                         @csrf
 
-                        {{-- PARKING --}}
-                        <div>
-                            <label class="text-xs font-bold text-slate-400">Parking</label>
-                            <select id="parkingSelect" name="parking_id" class="w-full p-4 rounded-xl bg-slate-100"
-                                required>
-                                <option value="">-- Choisir parking --</option>
-                                @foreach ($parkings as $parking)
-                                    <option value="{{ $parking->id }}">{{ $parking->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+                        <select id="parkingSelect" name="parking_id" class="w-full p-4 rounded-xl bg-slate-100" required>
+                            <option value="">-- Choisir parking --</option>
+                            @foreach ($parkings as $parking)
+                                <option value="{{ $parking->id }}">{{ $parking->name }}</option>
+                            @endforeach
+                        </select>
 
-                        {{-- PLACE --}}
-                        <div>
-                            <label class="text-xs font-bold text-slate-400">Place</label>
-                            <select id="placeSelect" name="place_id" class="w-full p-4 rounded-xl bg-slate-100" required>
-                                <option>Choisir un parking d'abord</option>
-                            </select>
-                        </div>
+                        <select id="placeSelect" name="place_id" class="w-full p-4 rounded-xl bg-slate-100" required>
+                            <option>Choisir un parking d'abord</option>
+                        </select>
 
-                        
-                        <div>
-                            <label class="text-xs font-bold text-slate-400">Plaque</label>
-                            <input name="plate_number" placeholder="Ex: 123-ABC" class="w-full p-4 rounded-xl bg-slate-100"
-                                required>
-                        </div>
-
-                        
-                        <div>
-                            <label class="text-xs font-bold text-slate-400">Marque</label>
-                            <input class="w-full p-4 rounded-xl bg-slate-100" type="text" name="marque" placeholder="Marque" required >
-                        </div>
+                        <input name="plate_number" placeholder="Plaque" class="w-full p-4 rounded-xl bg-slate-100" required>
+                        <input name="marque" placeholder="Marque" class="w-full p-4 rounded-xl bg-slate-100" required>
 
                         <button class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold">
                             Enregistrer Entrée
@@ -200,11 +143,12 @@
                 </div>
             @endif
 
+            {{-- EXIT --}}
             @if ($section == 'exit')
                 <table class="w-full bg-white rounded-2xl overflow-hidden">
                     <tr class="bg-slate-100">
                         <th class="p-4">Plaque</th>
-                        <th>ParkName</th>
+                        <th>Parking</th>
                         <th>Place</th>
                         <th>Action</th>
                     </tr>
@@ -217,13 +161,7 @@
                             <td>
                                 <form method="POST" action="{{ route('agent.exit', $r->id) }}">
                                     @csrf
-                                    <button type="submit" class="text-red-500 hover:text-red-700">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 inline" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V7" />
-                                        </svg>
-                                    </button>
+                                    <button class="text-red-500">🚪</button>
                                 </form>
                             </td>
                         </tr>
@@ -241,12 +179,68 @@
                             <p class="font-bold">{{ $place->parking->name }}</p>
                             <h3>Place {{ $place->number }}</h3>
                             <p>{{ $place->is_occupied ? 'Occupée' : 'Libre' }}</p>
-
                         </div>
                     @endforeach
                 </div>
             @endif
+            {{-- RESERVATIONS --}}
 
+            @if ($section == 'reservations')
+                <div class="bg-white rounded-2xl overflow-hidden">
+
+                    <table class="w-full">
+                        <tr class="bg-slate-100 text-sm">
+                            <th class="p-4">Client</th>
+                            <th>Véhicule</th>
+                            <th>Parking</th>
+                            <th>Place</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+
+                        @forelse ($reservations as $r)
+                            <tr class="text-center border-t">
+                                <td class="p-4">{{ $r->user->name }}</td>
+                                <td>{{ $r->vehicle->plate_number }}</td>
+                                <td>{{ $r->place->parking->name }}</td>
+                                <td>{{ $r->place->number }}</td>
+                                <td>
+                                    {{ $r->reservation_date }} <br>
+                                    <span class="text-xs text-slate-400">{{ $r->reservation_time }}</span>
+                                </td>
+
+                                <td class="flex justify-center gap-2 p-2">
+
+                                    
+                                    <form method="POST" action="{{ route('agent.confirm.reservation', $r->id) }}">
+                                        @csrf
+                                        <button class="bg-green-500 text-white px-3 py-1 rounded-xl">
+                                            ✅
+                                        </button>
+                                    </form>
+
+                                   
+                                    <form method="POST" action="{{ route('agent.cancel.reservation', $r->id) }}">
+                                        @csrf
+                                        <button class="bg-red-500 text-white px-3 py-1 rounded-xl">
+                                            ❌
+                                        </button>
+                                    </form>
+
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center p-6 text-slate-400">
+                                    Aucune réservation
+                                </td>
+                            </tr>
+                        @endforelse
+
+                    </table>
+
+                </div>
+            @endif
             {{-- HISTORY --}}
             @if ($section == 'history')
                 <table class="w-full bg-white rounded-2xl overflow-hidden">
@@ -270,37 +264,36 @@
 
         </div>
 
-        {{-- IMAGE DROITE --}}
-        <div class="hidden lg:block w-[40%] bg-slate-900 relative">
-            <img src="{{ asset('images/agent.png') }}" class="absolute w-full h-full object-cover opacity-40">
+        {{-- IMAGE FIXE --}}
+        <div class="w-[40%] h-screen sticky top-0 bg-slate-900 relative overflow-hidden">
+
+            <img src="{{ asset('images/agent.png') }}" class="absolute inset-0 w-full h-full object-cover opacity-40">
 
             <div class="absolute bottom-10 left-10 text-white">
                 <h2 class="text-4xl font-black">Agent Parking</h2>
                 <p class="text-slate-300">Gestion en temps réel des véhicules</p>
             </div>
+
         </div>
 
     </div>
-    'demandes' => asset('images/agent.png'),
+
+    {{-- SCRIPT JS --}}
     <script>
-        document.getElementById('parkingSelect').addEventListener('change', function() {
+        document.getElementById('parkingSelect')?.addEventListener('change', function() {
 
             let parkingId = this.value;
-            //console.log("Parking ID:", parkingId);
             let placeSelect = document.getElementById('placeSelect');
+
             fetch('/agent/places/' + parkingId)
-
                 .then(res => res.json())
-                .then(daata => {
-
+                .then(data => {
                     placeSelect.innerHTML = '';
-                    daata.forEach(place => {
-                        placeSelect.innerHTML +=
-                            `<option value="${place.id}">
-                        Place ${place.number}
-                    </option>`;
+                    data.forEach(place => {
+                        placeSelect.innerHTML += `<option value="${place.id}">
+                    Place ${place.number}
+                </option>`;
                     });
-
                 });
         });
     </script>

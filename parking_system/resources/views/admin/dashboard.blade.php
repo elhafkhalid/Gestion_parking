@@ -47,6 +47,13 @@
                     </div>
                 @endif
 
+                @if (session('error'))
+                    <div
+                        class="bg-red-50 text-red-700 p-4 rounded-2xl border border-green-100 mb-8 flex items-center gap-3 animate-fade-in">
+                        <span class="text-xl"></span> {{ session('error') }}
+                    </div>
+                @endif
+
                 {{-- SECTION : STATISTICS --}}
                 @if ($section == 'statistics')
                     <div class="space-y-8">
@@ -579,4 +586,10 @@
             </form>
         </div>
     </div>
+
+    <script>
+        function closeModal(id) {
+            document.getElementById('modal-' + id).classList.add('hidden');
+        }
+    </script>
 @endsection

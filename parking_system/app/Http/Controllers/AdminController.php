@@ -61,7 +61,7 @@ class AdminController extends Controller
         $recordsNotActif = ParkingRecord::with(['vehicle', 'place'])
             ->whereNotNull('exit_time')
             ->get();
-        
+
 
         return view('admin.dashboard', compact(
             'section',
@@ -88,7 +88,6 @@ class AdminController extends Controller
         return back()->with('success', 'agent supprime avec succes');
     }
 
-
     public function storeParking(Request $request)
     {
         $data = $request->validate([
@@ -109,7 +108,7 @@ class AdminController extends Controller
             ]);
         }
 
-        return back()->with('success', 'parking ajoute avec succes');
+        return back()->with('success', 'parking ajoute avec succe');
     }
 
     public function updateParking(Request $request, Parking $parking)
@@ -169,8 +168,7 @@ class AdminController extends Controller
     {
         $request = AgentRequest::with('user')->findOrFail($id);
         if ($request->status !== 'pending') return back()->with('error', 'demande deja traite');
-        $request->status = 'rejected';
-        $request->save();
+        $request->delete();
         return redirect()->route('admin.dashboard');
     }
 }
