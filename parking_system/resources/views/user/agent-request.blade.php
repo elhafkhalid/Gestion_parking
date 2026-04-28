@@ -120,6 +120,7 @@
                                 <button class="w-full bg-slate-900 text-white py-4 rounded-xl">
                                     Envoyer
                                 </button>
+                                <a href="{{ route('user.agent.create', ['step' => 3]) }}">← Retour</a>
                             </form>
                         </div>
                     @endif

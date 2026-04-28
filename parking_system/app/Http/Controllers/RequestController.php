@@ -35,19 +35,19 @@ class RequestController extends Controller
         if ($step == 3) {
 
             $request->validate([
-                'cv' => 'required|file|mimes:pdf|max:5120',
+                'cv' => 'required|file|mimes:pdf',
             ]);
 
-            $cv = $request->file('cv')->store('agent_cv', 'public');
+            $cv = $request->file('cv')->store('cv', 'public');
 
-            session()->put("step_$step", [
+            session()->put("$step", [
                 'cv' => $cv,
             ]);
 
             return redirect()->route('user.agent.create', ['step' => 4]);
         }
 
-        session()->put("step_$step", $request->all());
+        session()->put("$step", $request->all());
 
         return redirect()->route('user.agent.create', [
             'step' => $step + 1
@@ -64,9 +64,9 @@ class RequestController extends Controller
                 ->with('error', 'demande deja envoyer');
         }
 
-        $step1 = session('step_1');
-        $step2 = session('step_2');
-        $step3 = session('step_3');
+        $step1 = session('1');
+        $step2 = session('2');
+        $step3 = session('3');
 
         if (!$step1 || !$step2 || !$step3) {
             return redirect()
@@ -86,15 +86,15 @@ class RequestController extends Controller
         ]);
 
         session()->forget([
-            'step_1',
-            'step_2',
-            'step_3',
+            '1',
+            '2',
+            '3',
         ]);
 
         Auth::logout();
 
         return redirect()
             ->route('/')
-            ->with('success', 'demande envoye veuillez attend validation');
+            ->with('success', 'demande envoye ... attend validation');
     }
 }

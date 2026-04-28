@@ -84,8 +84,17 @@ class AdminController extends Controller
 
     public function deleteUser(User $user)
     {
+        $hasActiveRecords = $user->parkingRecords()
+            ->whereNull('exit_time')
+            ->exists();
+
+        if ($hasActiveRecords) {
+            return back()->with('error', 'imposible de supprimer ce agent il a des vehicule en cours');
+        }
+
         $user->delete();
-        return back()->with('success', 'agent supprime avec succes');
+
+        return back()->with('success', 'aent supprime avec succes');
     }
 
     public function storeParking(Request $request)
@@ -161,7 +170,7 @@ class AdminController extends Controller
         $user->save();
         $request->status = 'accepeted';
         $request->save();
-        return redirect()->route('admin.dashboard');
+        return back()->with('success','demande accepter');
     }
 
     public function rejectAgent($id)
@@ -169,6 +178,6 @@ class AdminController extends Controller
         $request = AgentRequest::with('user')->findOrFail($id);
         if ($request->status !== 'pending') return back()->with('error', 'demande deja traite');
         $request->delete();
-        return redirect()->route('admin.dashboard');
+        return back()->with('error','demande refuser');
     }
 }

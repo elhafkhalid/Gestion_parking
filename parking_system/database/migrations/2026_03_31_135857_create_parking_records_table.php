@@ -13,16 +13,13 @@ return new class extends Migration
         Schema::create('parking_records', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vehicle_id')
-                ->constrained()
-                ->onDelete('cascade');
+                ->constrained();
 
             $table->foreignId('place_id')
-                ->constrained()
-                ->onDelete('cascade');
+                ->constrained();
 
             $table->foreignId('agent_id')
-                ->constrained('users')
-                ->onDelete('cascade');
+                ->constrained('users');
 
             $table->dateTime('entry_time');
             $table->dateTime('exit_time')->nullable();
