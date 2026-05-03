@@ -16,6 +16,10 @@ return new class extends Migration
                 ->constrained('roles')
                 ->onDelete('restrict');
         });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->boolean('is_active')->default(true);
+        }); 
     }
 
     /**

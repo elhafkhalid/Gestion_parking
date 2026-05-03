@@ -1,13 +1,12 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Parking;
 use App\Models\ParkingRecord;
 use App\Models\Place;
-use App\Models\Parking;
-use App\Models\Vehicle;
 use App\Models\Reservation;
+use App\Models\Vehicle;
+use Illuminate\Http\Request;
 
 class AgentController extends Controller
 {
@@ -15,51 +14,100 @@ class AgentController extends Controller
     {
         $section = $request->section ?? 'dashboard';
 
-        $totalPlaces = Place::count();
-        $freePlaces = Place::where('is_occupied', false)->count();
-        $occupiedPlaces = Place::where('is_occupied', true)->count();
+        $agent = auth()->user();
 
-        $currentVehicles = ParkingRecord::whereNull('exit_time')->count();
+        $parking = $agent->parking;
 
-        $lastEntry = ParkingRecord::latest('entry_time')->first();
+        $parkingId = optional($parking)->id;
+
+        $totalPlaces = Place::where('parking_id', $parkingId)->count();
+
+        $freePlaces = Place::where('parking_id', $parkingId)
+            ->where('is_occupied', false)
+            ->count();
+
+        $occupiedPlaces = Place::where('parking_id', $parkingId)
+            ->where('is_occupied', true)
+            ->count();
+
+        $currentVehicles = ParkingRecord::whereHas('place', function ($q) use ($parkingId) {
+            $q->where('parking_id', $parkingId);
+        })
+            ->whereNull('exit_time')
+            ->count();
+
+        
+        $lastEntry = ParkingRecord::whereHas('place', function ($q) use ($parkingId) {
+            $q->where('parking_id', $parkingId);
+        })
+            ->latest('entry_time')
+            ->first();
+
+            
         $lastEntryTime = $lastEntry ? $lastEntry->entry_time : null;
 
-        $lastExit = ParkingRecord::whereNotNull('exit_time')
+        $lastExit = ParkingRecord::whereHas('place', function ($q) use ($parkingId) {
+            $q->where('parking_id', $parkingId);
+        })
+            ->whereNotNull('exit_time')
             ->latest('exit_time')
             ->first();
+
         $lastExitTime = $lastExit ? $lastExit->exit_time : null;
 
-        $todayRevenue = ParkingRecord::whereDate('exit_time', date('Y-m-d'))
+        $todayRevenue = ParkingRecord::whereHas('place', function ($q) use ($parkingId) {
+            $q->where('parking_id', $parkingId);
+        })
+            ->whereDate('exit_time', date('Y-m-d'))
             ->sum('total_price');
 
-
-        $latestVehicles = ParkingRecord::with('vehicle', 'place')
+        $latestVehicles = ParkingRecord::with(['vehicle', 'place'])
+            ->whereHas('place', function ($q) use ($parkingId) {
+                $q->where('parking_id', $parkingId);
+            })
             ->whereNull('exit_time')
             ->latest('entry_time')
             ->take(5)
             ->get();
 
-        $freePlacesList = Place::where('is_occupied', false)->get();
-        $parkings = Parking::all();
+        $freePlacesList = Place::where('parking_id', $parkingId)
+            ->where('is_occupied', false)
+            ->get();
+
+        $parkings = $parking
+            ? collect([$parking])
+            : collect();
+
         $vehicles = Vehicle::all();
 
+    
         $recordsActif = ParkingRecord::with(['vehicle', 'place'])
+            ->whereHas('place', function ($q) use ($parkingId) {
+                $q->where('parking_id', $parkingId);
+            })
             ->whereNull('exit_time')
             ->get();
 
         $recordsNotActif = ParkingRecord::with(['vehicle', 'place'])
+            ->whereHas('place', function ($q) use ($parkingId) {
+                $q->where('parking_id', $parkingId);
+            })
             ->whereNotNull('exit_time')
             ->get();
 
+       
         $reservations = Reservation::with(['user', 'vehicle', 'place.parking'])
+            ->whereHas('place', function ($q) use ($parkingId) {
+                $q->where('parking_id', $parkingId);
+            })
             ->whereNull('canceled_at')
-            ->latest()
             ->get();
 
+        $places = Place::where('parking_id', $parkingId)->get();
 
-        $places = place::all();
         return view('agent.dashboard', compact(
             'section',
+            'parking',
             'totalPlaces',
             'freePlaces',
             'occupiedPlaces',
@@ -78,16 +126,13 @@ class AgentController extends Controller
         ));
     }
 
-
-    public function storeEntry(Request $request)
-    {
+    public function storeEntry(Request $request) {
         $request->validate([
             'plate_number' => 'required',
-            'marque' => 'required|string|max:255',
-            'place_id' => 'required|exists:places,id',
+            'marque'       => 'required|string|max:255',
+            'place_id'     => 'required|exists:places,id',
         ]);
 
-        
         $vehicle = Vehicle::firstOrCreate(
             ['plate_number' => $request->plate_number],
             ['marque' => $request->marque]
@@ -95,7 +140,6 @@ class AgentController extends Controller
 
         $place = Place::findOrFail($request->place_id);
 
-       
         $alreadyInside = ParkingRecord::where('vehicle_id', $vehicle->id)
             ->whereNull('exit_time')
             ->exists();
@@ -104,7 +148,6 @@ class AgentController extends Controller
             return back()->with('error', 'vehicule deja parke');
         }
 
-       
         $vehicleReservation = Reservation::where('vehicle_id', $vehicle->id)
             ->whereNull('canceled_at')
             ->first();
@@ -117,20 +160,20 @@ class AgentController extends Controller
             return back()->with('error', 'place occupe');
         }
 
-        
         ParkingRecord::create([
             'vehicle_id' => $vehicle->id,
-            'place_id' => $place->id,
-            'agent_id' => auth()->id(),
+            'place_id'   => $place->id,
+            'agent_id'   => auth()->id(),
             'entry_time' => now(),
         ]);
 
         $place->update([
-            'is_occupied' => true
+            'is_occupied' => true,
         ]);
 
         return back()->with('success', 'entre enregiste');
     }
+
 
     public function storeExit($id)
     {
@@ -142,22 +185,21 @@ class AgentController extends Controller
         }
 
         $entryTime = $record->entry_time;
-        $exitTime = now();
+        $exitTime  = now();
 
-        $minutes = $entryTime->diffInMinutes($exitTime);
-        $parking = $record->place->parking;
+        $minutes     = $entryTime->diffInMinutes($exitTime);
+        $parking     = $record->place->parking;
         $pricePerMin = $parking->price / 60;
 
         $totalPrice = $minutes * $pricePerMin;
 
         $record->update([
-            'exit_time' => $exitTime,
-            'total_price' => $totalPrice
+            'exit_time'   => $exitTime,
+            'total_price' => $totalPrice,
         ]);
 
-
         $record->place->update([
-            'is_occupied' => false
+            'is_occupied' => false,
         ]);
 
         return back()->with(
@@ -171,14 +213,12 @@ class AgentController extends Controller
         $reservation = Reservation::findOrFail($id);
 
         $reservation->place->update([
-            'is_occupied' => false
+            'is_occupied' => false,
         ]);
 
         $reservation->update([
-            'canceled_at' => now()
+            'canceled_at' => now(),
         ]);
-
-        //$reservation->delete();
 
         return back()->with('success', 'reservation annule');
     }
@@ -189,17 +229,16 @@ class AgentController extends Controller
 
         ParkingRecord::create([
             'vehicle_id' => $reservation->vehicle_id,
-            'place_id' => $reservation->place_id,
-            'agent_id' => auth()->id(),
+            'place_id'   => $reservation->place_id,
+            'agent_id'   => auth()->id(),
             'entry_time' => now(),
         ]);
 
         $reservation->place->update([
-            'is_occupied' => true
+            'is_occupied' => true,
         ]);
 
-        //$reservation->delete();
-
+    
         return back()->with('success', 'entre confirme');
     }
 

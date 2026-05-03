@@ -46,8 +46,7 @@ class ClientController extends Controller
         ));
     }
 
-    public function reserve(Request $request)
-    {
+    public function reserve(Request $request) {
         $request->validate([
             'place_id'         => 'required|exists:places,id',
             'plate_number'     => 'required',
@@ -75,6 +74,7 @@ class ClientController extends Controller
             ->whereNull('canceled_at')
             ->exists();
 
+            
         if ($vehicleAlreadyReserved) {
             return back()->with('error', 'ce vehicule a deja reserver');
         }

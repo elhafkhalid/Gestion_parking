@@ -10,51 +10,79 @@
         [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
             <div class="max-w-4xl mx-auto">
+                <div class="flex items-center gap-4 mb-12">
 
-                {{-- HEADER --}}
+                    <div
+                        class="w-12 h-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black shadow-lg shadow-blue-200">
+                        C
+                    </div>
+
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-900 tracking-tight">
+                            Client Panel
+                        </h1>
+
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                            Gestion Réservation
+                        </p>
+                    </div>
+
+                </div>
+                
                 <div class="flex justify-between items-center mb-10">
 
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-12 h-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black">
-                            C
-                        </div>
-                        <div>
-                            <h1 class="text-2xl font-black">Client Panel</h1>
-                            <p class="text-xs text-slate-400 uppercase">Gestion Réservation</p>
-                        </div>
+                    <div class="flex gap-3 flex-wrap">
+
+                        <a href="{{ route('client.dashboard', ['section' => 'home']) }}"
+                            class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold
+            {{ $section == 'home'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                : 'bg-white text-slate-500 border border-slate-200' }}
+            hover:scale-105 transition-all">
+
+                            <span>🏠</span>
+                            <span>Accueil</span>
+                        </a>
+
+                        <a href="{{ route('client.dashboard', ['section' => 'reservations']) }}"
+                            class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold
+            {{ $section == 'reservations'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                : 'bg-white text-slate-500 border border-slate-200' }}
+            hover:scale-105 transition-all">
+
+                            <span>📄</span>
+                            <span>Réservations</span>
+                        </a>
+
+                        <a href="{{ route('client.dashboard', ['section' => 'history']) }}"
+                            class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold
+            {{ $section == 'history'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                : 'bg-white text-slate-500 border border-slate-200' }}
+            hover:scale-105 transition-all">
+
+                            <span>🕓</span>
+                            <span>Historique</span>
+                        </a>
+
                     </div>
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button class="bg-slate-900 text-white px-5 py-2 rounded-xl font-bold">
+                        <button
+                            class="bg-slate-900 text-white px-5 py-3 rounded-xl text-sm font-bold hover:bg-red-600 transition-all">
                             Logout
                         </button>
                     </form>
 
                 </div>
 
-                {{-- NAV DROITE --}}
-                <div class="flex justify-between items-center mb-10">
+                {{-- HEADER --}}
 
-                    <div class="flex gap-2">
 
-                        <a href="{{ route('client.dashboard', ['section' => 'home']) }}"
-                            class="p-3 rounded-xl {{ $section == 'home' ? 'bg-blue-600 text-white' : 'bg-white border' }}">🏠</a>
 
-                        <a href="{{ route('client.dashboard', ['section' => 'reservations']) }}"
-                            class="p-3 rounded-xl {{ $section == 'reservations' ? 'bg-blue-600 text-white' : 'bg-white border' }}">📄</a>
 
-                        <a href="{{ route('client.dashboard', ['section' => 'history']) }}"
-                            class="p-3 rounded-xl {{ $section == 'history' ? 'bg-blue-600 text-white' : 'bg-white border' }}">🕓</a>
-
-                    </div>
-
-                    <div class="text-xs text-slate-400 font-bold">
-                        Client
-                    </div>
-
-                </div>
 
                 {{-- FLASH --}}
                 @if (session('success'))
@@ -145,7 +173,7 @@
 
                                 <button class="w-full bg-green-600 text-white py-3 rounded-xl font-bold">
                                     Confirmer
-                                </button> 
+                                </button>
 
                             </form>
 

@@ -1,13 +1,11 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Role;
-
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -16,13 +14,12 @@ class AuthController extends Controller
         session(['type' => $request->type]);
         return view('auth.register');
     }
-    
 
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
         ]);
 
@@ -35,10 +32,10 @@ class AuthController extends Controller
         }
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => $request->name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role_id' => $role->id,
+            'role_id'  => $role->id,
         ]);
 
         Auth::login($user);
@@ -58,21 +55,31 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $data = $request->validate([
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required',
         ]);
 
-        if (!auth::attempt($data)) {
+        if (! auth::attempt($data)) {
             return back()->withErrors('email ou password incorrect');
         }
 
+        $user = Auth::user();
+
+        if (! $user->is_active) {
+
+            Auth::logout();
+
+            return back()->withErrors([
+                'email' => 'compte desactiver',
+            ]);
+        }
         $role = Auth::user()->role->name;
 
         $routes = [
-            'admin' => 'admin.dashboard',
-            'agent' => 'agent.dashboard',
+            'admin'  => 'admin.dashboard',
+            'agent'  => 'agent.dashboard',
             'client' => 'client.dashboard',
-            'user' => 'user.agent.create',
+            'user'   => 'user.agent.create',
         ];
 
         return redirect()->route($routes[$role] ?? 'login');

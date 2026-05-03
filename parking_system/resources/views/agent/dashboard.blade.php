@@ -10,38 +10,87 @@
                 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
 
             {{-- HEADER --}}
-            <div class="flex justify-between items-center mb-12">
-                <div class="flex items-center gap-4">
+            <div class="mb-12">
+
+                {{-- HEADER --}}
+                <div class="flex items-center gap-4 mb-6">
+
                     <div class="w-12 h-12 bg-blue-600 text-white flex items-center justify-center rounded-2xl font-black">
                         A
                     </div>
+
                     <div>
                         <h1 class="text-2xl font-black">Agent Panel</h1>
                         <p class="text-xs text-slate-400 uppercase">Gestion Parking</p>
                     </div>
+
                 </div>
 
-                <div class="flex gap-2">
+                {{-- MENU --}}
+                <div class="flex flex-wrap gap-3">
+
                     <a href="{{ route('agent.dashboard', ['section' => 'dashboard']) }}"
-                        class="p-3 rounded-xl {{ $section == 'dashboard' ? 'bg-blue-600 text-white' : 'bg-white border' }}">📊</a>
+                        class="flex items-center gap-2 px-4 py-3 rounded-2xl font-bold text-sm transition
+            {{ $section == 'dashboard'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                : 'bg-white border text-slate-600 hover:bg-slate-100' }}">
+
+                        <span>📊</span>
+                        <span>Dashboard</span>
+                    </a>
 
                     <a href="{{ route('agent.dashboard', ['section' => 'entry']) }}"
-                        class="p-3 rounded-xl {{ $section == 'entry' ? 'bg-blue-600 text-white' : 'bg-white border' }}">🚗</a>
+                        class="flex items-center gap-2 px-4 py-3 rounded-2xl font-bold text-sm transition
+            {{ $section == 'entry'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                : 'bg-white border text-slate-600 hover:bg-slate-100' }}">
+
+                        <span>🚗</span>
+                        <span>Entrée</span>
+                    </a>
 
                     <a href="{{ route('agent.dashboard', ['section' => 'exit']) }}"
-                        class="p-3 rounded-xl {{ $section == 'exit' ? 'bg-blue-600 text-white' : 'bg-white border' }}">🚪</a>
+                        class="flex items-center gap-2 px-4 py-3 rounded-2xl font-bold text-sm transition
+            {{ $section == 'exit'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                : 'bg-white border text-slate-600 hover:bg-slate-100' }}">
+
+                        <span>🚪</span>
+                        <span>Sortie</span>
+                    </a>
 
                     <a href="{{ route('agent.dashboard', ['section' => 'places']) }}"
-                        class="p-3 rounded-xl {{ $section == 'places' ? 'bg-blue-600 text-white' : 'bg-white border' }}">🅿️</a>
+                        class="flex items-center gap-2 px-4 py-3 rounded-2xl font-bold text-sm transition
+            {{ $section == 'places'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                : 'bg-white border text-slate-600 hover:bg-slate-100' }}">
+
+                        <span>🅿️</span>
+                        <span>Places</span>
+                    </a>
 
                     <a href="{{ route('agent.dashboard', ['section' => 'reservations']) }}"
-                        class="p-3 rounded-xl {{ $section == 'reservations' ? 'bg-blue-600 text-white' : 'bg-white border' }}">
-                        📅
+                        class="flex items-center gap-2 px-4 py-3 rounded-2xl font-bold text-sm transition
+            {{ $section == 'reservations'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                : 'bg-white border text-slate-600 hover:bg-slate-100' }}">
+
+                        <span>📅</span>
+                        <span>Réservations</span>
                     </a>
 
                     <a href="{{ route('agent.dashboard', ['section' => 'history']) }}"
-                        class="p-3 rounded-xl {{ $section == 'history' ? 'bg-blue-600 text-white' : 'bg-white border' }}">📜</a>
+                        class="flex items-center gap-2 px-4 py-3 rounded-2xl font-bold text-sm transition
+            {{ $section == 'history'
+                ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+                : 'bg-white border text-slate-600 hover:bg-slate-100' }}">
+
+                        <span>📜</span>
+                        <span>Historique</span>
+                    </a>
+
                 </div>
+
             </div>
 
             {{-- ALERTS --}}
@@ -51,7 +100,7 @@
                 </div>
             @endif
 
-              @if (session('error'))
+            @if (session('error'))
                 <div class="bg-red-100 text-red-700 p-4 rounded-xl mb-6">
                     {{ session('error') }}
                 </div>
@@ -161,7 +210,7 @@
                             <td>
                                 <form method="POST" action="{{ route('agent.exit', $r->id) }}">
                                     @csrf
-                                    <button class="text-red-500">🚪</button>
+                                    <button class="text-red-500">OUT</button>
                                 </form>
                             </td>
                         </tr>
@@ -211,7 +260,7 @@
 
                                 <td class="flex justify-center gap-2 p-2">
 
-                                    
+
                                     <form method="POST" action="{{ route('agent.confirm.reservation', $r->id) }}">
                                         @csrf
                                         <button class="bg-green-500 text-white px-3 py-1 rounded-xl">
@@ -219,7 +268,7 @@
                                         </button>
                                     </form>
 
-                                   
+
                                     <form method="POST" action="{{ route('agent.cancel.reservation', $r->id) }}">
                                         @csrf
                                         <button class="bg-red-500 text-white px-3 py-1 rounded-xl">

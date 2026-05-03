@@ -87,21 +87,30 @@ class AdminController extends Controller
             ->exists();
 
         if ($hasActiveRecords) {
-            return back()->with('error', 'imposible de supprimer ce agent il a des vehicule en cours');
+            return back()->with(
+                'error',
+                'impossible de desactiver cet agent il a des vehicule en cour'
+            );
         }
 
         $parking = Parking::where('agent_id', $user->id)->first();
 
         if ($parking) {
-            $parking->agent_id = null;
-            $parking->save();
+            $parking->update([
+                'agent_id' => null,
+            ]);
         }
 
-        $user->delete();
+        $user->update([
+            'is_active' => false,
+        ]);
 
-        return back()->with('success', 'aent supprime avec succes');
+        return back()->with(
+            'success',
+            'agent desactive avec succes'
+        );
     }
-
+    
     public function storeParking(Request $request)
     {
         $data = $request->validate([
@@ -155,7 +164,7 @@ class AdminController extends Controller
     public function deleteParking(Parking $parking)
     {
         if ($parking->places()->whereHas('activeParkingRecords')->exists()) {
-            return back()->with('error', 'impossible de supprimer : vehicules encore statione');
+            return back()->with('error', 'impossible de supprimer => vehicules encore statione');
         }
 
         $parking->delete();
@@ -199,7 +208,7 @@ class AdminController extends Controller
         $parking->agent_id = $request->agent_id;
         $parking->save();
 
-        return back()->with('success', 'Agent affecté avec succès');
+        return back()->with('success', 'agent affecte avec succes');
     }
 
 }

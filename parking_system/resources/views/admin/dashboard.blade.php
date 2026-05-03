@@ -7,38 +7,97 @@
         <div class="w-full lg:w-[60%] flex flex-col p-6 md:p-12 lg:p-20 overflow-y-auto order-2 lg:order-1">
             <div class="max-w-4xl w-full mx-auto">
 
-                {{-- HEADER LOGO & NAVIGATION --}}
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 gap-6">
+                {{-- HEADER LOGO --}}
+                <div class="flex flex-col gap-6 mb-12">
+
+                    {{-- HEADER LOGO --}}
                     <div class="flex items-center gap-4">
+
                         <div
                             class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-lg shadow-blue-200">
                             P
                         </div>
+
                         <div>
-                            <h1 class="text-2xl font-black text-slate-900 tracking-tight">ParkSys</h1>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Espace Administrateur
+                            <h1 class="text-2xl font-black text-slate-900 tracking-tight">
+                                ParkSys
+                            </h1>
+
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+                                Espace Administrateur
                             </p>
                         </div>
+
                     </div>
-                    <div class="flex gap-3">
+
+                    {{-- MENU --}}
+                    <div class="flex flex-wrap gap-3">
+
                         <a href="{{ route('admin.dashboard', ['section' => 'statistics']) }}"
-                            class="p-3 rounded-xl {{ $section == 'statistics' ? 'bg-blue-600 text-white' : 'bg-white text-slate-400 border border-slate-200' }} hover:scale-105 transition-all">📊</a>
-                        <a href="{{ route('admin.dashboard', ['section' => 'parkings']) }}"
-                            class="p-3 rounded-xl {{ $section == 'parkings' ? 'bg-blue-600 text-white' : 'bg-white text-slate-400 border border-slate-200' }} hover:scale-105 transition-all">🅿️</a>
-                        <a href="{{ route('admin.dashboard', ['section' => 'users']) }}"
-                            class="p-3 rounded-xl {{ $section == 'users' ? 'bg-blue-600 text-white' : 'bg-white text-slate-400 border border-slate-200' }} hover:scale-105 transition-all">👥</a>
-                        <a href="{{ route('admin.dashboard', ['section' => 'history']) }}"
-                            class="p-3 rounded-xl {{ $section == 'history' ? 'bg-blue-600 text-white' : 'bg-white border' }}">📜</a>
-                        <a href="{{ route('admin.dashboard', ['section' => 'demandes']) }}"
-                            class="p-3 rounded-xl {{ $section == 'demandes' ? 'bg-blue-600 text-white' : 'bg-white text-slate-400 border border-slate-200' }} hover:scale-105 transition-all relative">
-                            📩 @if ($pendingRequests > 0)
-                                <span
-                                    class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center text-white">{{ $pendingRequests }}</span>
-                            @endif
+                            class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold
+        {{ $section == 'statistics'
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+            : 'bg-white text-slate-500 border border-slate-200' }}
+        hover:scale-105 transition-all">
+
+                            <span>📊</span>
+                            <span>Statistiques</span>
                         </a>
+
+                        <a href="{{ route('admin.dashboard', ['section' => 'parkings']) }}"
+                            class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold
+        {{ $section == 'parkings'
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+            : 'bg-white text-slate-500 border border-slate-200' }}
+        hover:scale-105 transition-all">
+
+                            <span>🅿️</span>
+                            <span>Parkings</span>
+                        </a>
+
+                        <a href="{{ route('admin.dashboard', ['section' => 'users']) }}"
+                            class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold
+        {{ $section == 'users'
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+            : 'bg-white text-slate-500 border border-slate-200' }}
+        hover:scale-105 transition-all">
+
+                            <span>👥</span>
+                            <span>Utilisateurs</span>
+                        </a>
+
+                        <a href="{{ route('admin.dashboard', ['section' => 'history']) }}"
+                            class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold
+        {{ $section == 'history'
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+            : 'bg-white text-slate-500 border border-slate-200' }}
+        hover:scale-105 transition-all">
+
+                            <span>📜</span>
+                            <span>Historique</span>
+                        </a>
+
+                        <a href="{{ route('admin.dashboard', ['section' => 'demandes']) }}"
+                            class="relative flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold
+        {{ $section == 'demandes'
+            ? 'bg-blue-600 text-white shadow-lg shadow-blue-200'
+            : 'bg-white text-slate-500 border border-slate-200' }}
+        hover:scale-105 transition-all">
+
+                            <span>📩</span>
+                            <span>Demandes</span>
+
+                            @if ($pendingRequests > 0)
+                                <span
+                                    class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-[10px] flex items-center justify-center text-white">
+                                    {{ $pendingRequests }}
+                                </span>
+                            @endif
+
+                        </a>
+
                     </div>
                 </div>
-
                 {{-- MESSAGES FLASH --}}
                 @if (session('success'))
                     <div
@@ -367,8 +426,6 @@
                                     </div>
 
                                 </div>
-
-                                
                             @endforeach
                         </div>
                     </div>
@@ -379,6 +436,7 @@
                             <th class="p-4">Plaque</th>
                             <th>Entrée</th>
                             <th>Sortie</th>
+                             <th>Agent</th>
                             <th>Prix</th>
                         </tr>
 
@@ -387,6 +445,7 @@
                                 <td class="p-4">{{ $r->vehicle->plate_number }}</td>
                                 <td>{{ $r->entry_time }}</td>
                                 <td>{{ $r->exit_time }}</td>
+                                <td>{{ $r->agent->email }}</td>
                                 <td>{{ $r->total_price }}</td>
                             </tr>
                         @endforeach
