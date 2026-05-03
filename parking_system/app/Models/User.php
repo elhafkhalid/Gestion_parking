@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -39,7 +38,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(ParkingRecord::class, 'agent_id');
     }
-    
+
+    public function parking()
+    {
+        return $this->hasOne(Parking::class,'agent_id');
+    }
+
     
     /**
      * The attributes that should be hidden for serialization.
@@ -60,7 +64,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
         ];
     }
 }

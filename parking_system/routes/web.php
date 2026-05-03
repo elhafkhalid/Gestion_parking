@@ -11,6 +11,7 @@ use App\Http\Controllers\AgentController;
 
 Route::get('/', [VisiteurController::class, 'index'])->name('/');
 
+
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -39,6 +40,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/admin/parkings/{parking}', [AdminController::class, 'deleteParking'])->name('parkings.delete');
     Route::post('/admin/agent/{id}/accept', [AdminController::class, 'acceptAgent'])->name('admin.agent.accept');
     Route::post('/admin/agent/{id}/reject', [AdminController::class, 'rejectAgent'])->name('admin.agent.reject');
+    Route::post('/admin/parking/{parking}/assign-agent',[AdminController::class, 'assignAgent'])->name('admin.assign.agent');
 });
 
 Route::middleware(['auth', 'role:agent'])->group(function () {

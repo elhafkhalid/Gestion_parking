@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -20,5 +19,11 @@ class Place extends Model
     public function parkingRecords()
     {
         return $this->hasMany(ParkingRecord::class);
+    }
+
+    public function activeParkingRecords()
+    {
+        return $this->hasMany(ParkingRecord::class)
+            ->whereNull('exit_time');
     }
 }

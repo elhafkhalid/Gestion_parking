@@ -233,8 +233,17 @@
                                             <span class="text-blue-600 font-black">🚗 {{ $parking->total_places }}
                                                 PLACES</span>
                                         </div>
+                                        <p class="text-sm text-slate-500 mt-2">
+                                            👤 Agent :
+                                            {{ $parking->agent->name ?? 'Aucun agent' }}
+                                        </p>
                                     </div>
                                     <div class="flex gap-2">
+                                        <button
+                                            onclick="document.getElementById('agentModal-{{ $parking->id }}').classList.remove('hidden')"
+                                            class="w-12 h-12 flex items-center justify-center rounded-2xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all">
+                                            👤
+                                        </button>
                                         <button
                                             onclick="document.getElementById('editModal-{{ $parking->id }}').classList.remove('hidden')"
                                             class="w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 text-slate-600 hover:bg-blue-600 hover:text-white transition-all">✏️</button>
@@ -313,6 +322,53 @@
                                         </form>
                                     </div>
                                 </div>
+
+                                <div id="agentModal-{{ $parking->id }}"
+                                    class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+
+                                    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl">
+
+                                        <h3 class="text-2xl font-black mb-6">
+                                            Affecter Agent
+                                        </h3>
+
+                                        <form method="POST" action="{{ route('admin.assign.agent', $parking->id) }}">
+
+                                            @csrf
+
+                                            <select name="agent_id"
+                                                class="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-medium">
+
+                                                @foreach ($availableAgents as $agent)
+                                                    <option value="{{ $agent->id }}">
+                                                        {{ $agent->name }}
+                                                    </option>
+                                                @endforeach
+
+                                            </select>
+
+                                            <div class="flex gap-3 mt-6">
+
+                                                <button type="button"
+                                                    onclick="document.getElementById('agentModal-{{ $parking->id }}').classList.add('hidden')"
+                                                    class="flex-1 py-4 text-xs font-black uppercase text-slate-400">
+                                                    Annuler
+                                                </button>
+
+                                                <button
+                                                    class="flex-[2] bg-blue-600 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-widest">
+                                                    Affecter
+                                                </button>
+
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+
+                                </div>
+
+                                
                             @endforeach
                         </div>
                     </div>

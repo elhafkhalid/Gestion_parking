@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('parkings', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('agent_id')
+                ->nullable()
+                ->unique()
+                ->constrained('users')
+                ->nullOnDelete();
             $table->string('name');
             $table->string('address');
             $table->integer('total_places');
