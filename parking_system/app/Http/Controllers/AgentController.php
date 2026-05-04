@@ -36,14 +36,12 @@ class AgentController extends Controller
             ->whereNull('exit_time')
             ->count();
 
-        
         $lastEntry = ParkingRecord::whereHas('place', function ($q) use ($parkingId) {
             $q->where('parking_id', $parkingId);
         })
             ->latest('entry_time')
             ->first();
 
-            
         $lastEntryTime = $lastEntry ? $lastEntry->entry_time : null;
 
         $lastExit = ParkingRecord::whereHas('place', function ($q) use ($parkingId) {
@@ -80,7 +78,6 @@ class AgentController extends Controller
 
         $vehicles = Vehicle::all();
 
-    
         $recordsActif = ParkingRecord::with(['vehicle', 'place'])
             ->whereHas('place', function ($q) use ($parkingId) {
                 $q->where('parking_id', $parkingId);
@@ -95,12 +92,12 @@ class AgentController extends Controller
             ->whereNotNull('exit_time')
             ->get();
 
-       
         $reservations = Reservation::with(['user', 'vehicle', 'place.parking'])
             ->whereHas('place', function ($q) use ($parkingId) {
                 $q->where('parking_id', $parkingId);
             })
             ->whereNull('canceled_at')
+            ->whereNull('confirmed_at')
             ->get();
 
         $places = Place::where('parking_id', $parkingId)->get();
@@ -126,7 +123,8 @@ class AgentController extends Controller
         ));
     }
 
-    public function storeEntry(Request $request) {
+    public function storeEntry(Request $request)
+    {
         $request->validate([
             'plate_number' => 'required',
             'marque'       => 'required|string|max:255',
@@ -173,7 +171,6 @@ class AgentController extends Controller
 
         return back()->with('success', 'entre enregiste');
     }
-
 
     public function storeExit($id)
     {
@@ -238,7 +235,10 @@ class AgentController extends Controller
             'is_occupied' => true,
         ]);
 
-    
+        $reservation->update([
+            'confirmed_at' => now(),
+        ]);
+
         return back()->with('success', 'entre confirme');
     }
 

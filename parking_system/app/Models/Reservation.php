@@ -12,7 +12,7 @@ class Reservation extends Model
         'vehicle_id',
         'reservation_date',
         'reservation_time',
-        'reserved_at',
+        'confirmed_at',
         'canceled_at',
     ];
 

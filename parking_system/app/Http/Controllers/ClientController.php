@@ -7,6 +7,7 @@ use App\Models\Reservation;
 use App\Models\Vehicle;
 use Illuminate\Http\Request;
 
+
 class ClientController extends Controller
 {
     public function index(Request $request)
@@ -30,7 +31,7 @@ class ClientController extends Controller
         $reservations = Reservation::with(['place.parking', 'vehicle'])
             ->where('user_id', auth()->id())
             ->whereNull('canceled_at')
-            ->latest()
+            ->whereNull('confirmed_at')
             ->get();
 
         $history = Reservation::where('user_id', auth()->id())->get();
@@ -57,6 +58,7 @@ class ClientController extends Controller
 
         $alreadyReserved = Reservation::where('user_id', auth()->id())
             ->whereNull('canceled_at')
+            ->whereNull('confirmed_at')
             ->exists();
 
         if ($alreadyReserved) {
@@ -72,6 +74,7 @@ class ClientController extends Controller
 
         $vehicleAlreadyReserved = Reservation::where('vehicle_id', $vehicle->id)
             ->whereNull('canceled_at')
+            ->whereNull('confirmed_at')
             ->exists();
 
             
@@ -95,10 +98,10 @@ class ClientController extends Controller
             'vehicle_id'       => $vehicle->id,
             'reservation_date' => $request->reservation_date,
             'reservation_time' => $request->reservation_time,
-            'reserved_at'      => now(),
         ]);
 
         $place = Place::find($request->place_id);
+
         $place->update([
             'is_occupied' => true,
         ]);
